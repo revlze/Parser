@@ -25,10 +25,10 @@ class Publication:
         self.year = None
     missing_value = '-'
 
-    def to_csv_row(self):
+    def to_csv_row(self) -> str:
         """ Create a table row with semicolons between the elements """
 
-        return self.title + ';' + self.authors + ';' + self.info + ';' + self.link + ';' + self.year
+        return f'{self.title};{self.authors};{self.info};{self.link};{self.year}'
 
     def get_year(self):
         """ Gets a year in the range from 1900 to 2100 """

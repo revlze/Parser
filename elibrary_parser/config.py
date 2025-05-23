@@ -1,1 +1,1 @@
-DRIVER_PATH = "geckodriver.exe"
+DRIVER_PATH = "/usr/bin/geckodriver"
