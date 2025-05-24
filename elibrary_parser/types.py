@@ -17,19 +17,21 @@ class Publication:
         link for the publication
     """
 
-    def __init__(self, title: str, authors: str, info: str, link: str):
+    def __init__(self, title: str, authors: str, info: str, link: str, cited_by: str):
         self.title = title
         self.authors = authors
         self.info = info
         self.link = link
         self.year = None
+        self.cited_by = cited_by
+        
     missing_value = '-'
 
     def to_csv_row(self) -> str:
-        """ Create a table row with semicolons between the elements """
+        """ Create a table row with comma between the elements """
 
-        return f'{self.title};{self.authors};{self.info};{self.link};{self.year}'
-
+        return f'{self.authors},{self.title},{self.year},{self.info},{self.cited_by}'
+    
     def get_year(self):
         """ Gets a year in the range from 1900 to 2100 """
 
@@ -55,9 +57,10 @@ class Publication:
                 and self.info == other.info
                 and self.link == other.link
                 and self.year == other.year
+                and self.cited_by == other.cited_by
         )
 
     def __hash__(self):
         """ Hashes a publication"""
 
-        return hash(self.title) ^ hash(self.authors) ^ hash(self.info) ^ hash(self.link) ^ hash(self.year)
+        return hash(self.title) ^ hash(self.authors) ^ hash(self.info) ^ hash(self.link) ^ hash(self.year) ^ hash(self.cited_by)
