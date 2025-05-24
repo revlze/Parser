@@ -14,7 +14,7 @@ from selenium.webdriver.common.by import By
 
 from elibrary_parser import config
 from elibrary_parser.types import Publication
-
+from transliterate import translit
 
 class ParserOrg:
     """Class for loading and processing publications by eLibrary authors
@@ -168,7 +168,7 @@ class ParserOrg:
         if not font:
             return OrganizationParser.missing_value
         italic = font[0].find_all('i')
-        return italic[0].text.lower() if italic else OrganizationParser.missing_value
+        return translit(italic[0].text.replace(',', ';'), 'ru') if italic else OrganizationParser.missing_value
 
     @staticmethod
     def get_info(cell: bs4.element.ResultSet) -> str:
@@ -195,6 +195,14 @@ class ParserOrg:
             return OrganizationParser.missing_value
         
         return 'https://www.elibrary.ru/' + links[0].get('href')
+    
+    @staticmethod
+    def get_cited_by(cell: bs4.element.ResultSet) -> str:
+        """Get the number of citations of an article from an HTML page box"""
+        
+        tds = cell.find_parent("tr").find_all("td")
+        return tds[2].get_text(strip=True)
+        
 
     def parse_publications(self):
         """ Get trough the html file and save information from it"""
@@ -212,11 +220,14 @@ class ParserOrg:
                     authors=self.get_authors(cell),
                     info=info,
                     link=self.get_link(cell),
+                    cited_by=self.get_cited_by(cell),
                 )
                 pub.get_year()
                 self.publications.append(pub)
 
-    def save_publications(self):
+        
+    # Authors,Title,Year,Source title,Cited by
+    def save_publications_to_csv(self):
         """Save organization's publications to a csv-file"""
         
         output_dir = self.data_path / "processed" / self.org_id
@@ -224,10 +235,11 @@ class ParserOrg:
         csv_path = output_dir / "publications.csv"
 
         with open(csv_path, 'w', encoding='utf-8', newline='') as csvfile:
-            writer = csv.writer(csvfile, delimiter=';')
+            writer = csv.writer(csvfile, delimiter=',')
+            writer.writerow(["Authors", "Title", "Year", "Source title", "Cited by"])
             for pub in self.publications:
                 writer.writerow([
-                    pub.title, pub.authors, pub.info, pub.link, pub.year
+                    pub.authors, pub.title, pub.year, pub.info, pub.cited_by
                 ])
                 
                 
