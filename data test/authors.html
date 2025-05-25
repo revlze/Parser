@@ -1,0 +1,3247 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="robots" content="noindex,nofollow">
+<title>Университет Иннополис - Список публикаций организации</title>
+
+<script type="text/javascript" src="/jquery.min.js"></script>
+<script type="text/javascript" src="/jquery.tools.min.js"></script>
+<script type="text/javascript" src="/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
+<script type="text/javascript" src="/fancybox/jquery.easydrag.js"></script>
+<script type="text/javascript" src="/elibrary1.js"></script>
+<script type="text/javascript" src="/MathJax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<link rel="stylesheet" href="/fancybox/jquery.fancybox-1.3.4.css" type="text/css" media="screen">
+<link rel="stylesheet" href="/style_sm.css" type="text/css" media="screen">
+
+<SCRIPT LANGUAGE="JavaScript">
+
+but_blue_hover=new Image();
+but_blue_hover.src="/images/but_blue_hover.png";
+but_red_hover=new Image();
+but_red_hover.src="/images/but_red_hover.png";
+but_gray_hover=new Image();
+but_gray_hover.src="/images/but_gray_hover.png";
+
+w_down=new Image();
+w_down.src="/pic/w_show.gif";
+w_up=new Image();
+w_up.src="/pic/w_hide.gif";
+ws_down=new Image();
+ws_down.src="/images/or_er2_down.gif";
+ws_up=new Image();
+ws_up.src="/images/or_close2.gif";
+
+var selRow;
+var row_color;
+function onRowClick(row){
+  if(row != selRow){
+     if (selRow != null){
+        selRow.bgColor = row_color;
+     }
+  selRow = row;
+  row_color = row.bgColor;
+  selRow.bgColor="#e8e8e8";
+  }
+}
+function hideShow(elem,parent) {
+  var child =  document.getElementById(elem);
+  child.className = child.className == "collapsed" ? "expanded" : "collapsed";
+  if (parent.className == "win_expandable") parent.src = child.className == "collapsed" ? w_down.src : w_up.src;
+}
+function hideShowSel(elem) {
+  var child =  document.getElementById(elem);
+  child.className = child.className == "collapsed" ? "expanded" : "collapsed";
+  var imgparent =  document.getElementById('img_'+elem);
+  if (imgparent.className == "win_expandable") imgparent.src = child.className == "collapsed" ? ws_down.src : ws_up.src;
+  var txtparent =  document.getElementById('txt_'+elem);
+  if (txtparent.className == "win_expandable") txtparent.innerHTML = child.className == "collapsed" ? "Раскрыть" : "Скрыть";
+}
+function hideShowSel1(elem) {
+  var child =  document.getElementById(elem);
+  $('#'+elem).slideToggle(500, function(){didScroll = true;})
+  child.className = child.className == "collapsed1" ? "expanded1" : "collapsed1";
+  if (child.className == "collapsed1") {
+    $('#'+elem).slideUp(500, function(){didScroll = true;})}
+  else {
+    $('#'+elem).slideDown(500, function(){didScroll = true;})}
+  var txtparent =  document.getElementById('txt_'+elem);
+  if (txtparent.className == "win_expandable") txtparent.innerHTML = child.className == "collapsed1" ? "▼" : "▲";
+}
+function RowSelect(row,sel){
+  var rbgc = sel==1 ? "#e8e8e8" : "#f5f5f5";
+  $('#'+row+' td').attr('bgColor', rbgc);
+}
+function select_all(){
+  $('input:checkbox[name^="tid"]').attr('checked', true);
+  $('input:checkbox[name^="pid"]').attr('checked', true);
+  $('tr[id^="arw"] td').attr('bgColor', "#e8e8e8");
+  $('tr[id^="brw"] td').attr('bgColor', "#e8e8e8");
+}
+function deselect_all(){
+  $('input:checkbox[name^="tid"]').attr('checked', false);
+  $('input:checkbox[name^="pid"]').attr('checked', false);
+  $('tr[id^="arw"] td').attr('bgColor', "#f5f5f5");
+  $('tr[id^="brw"] td').attr('bgColor', "#f5f5f5");
+}
+function select_options(sname){
+  $('input:checkbox[name^="'+sname+'s_"]').attr('checked', true);
+  $('tr[name^="'+sname+'_"]').attr('bgColor', "#dddddd");
+  checked_count(sname);
+  isnew=1;
+  }
+function deselect_options(sname){
+  $('input:checkbox[name^="'+sname+'s_"]').attr('checked', false);
+  $('tr[name^="'+sname+'_"]').attr('bgColor', "#f5f5f5");
+  checked_count(sname);
+  isnew=1;
+}
+function wait_load_options(sname){
+  $('span[name="'+sname+'sheader"]').text('загружается...');
+}
+function checked_count(sname){
+  var nb=$('input:checkbox[name^="'+sname+'s_"]:checked').length;
+  if (nb>0){$('span[name="'+sname+'sheader"]').html('(выделено: ' + nb + ')')}
+  else{$('span[name="'+sname+'sheader"]').text('')}
+}
+var ir=0;
+function resizelist(sname, offset) {
+ if (ir <= offset+10) {
+  ir=ir+1;
+  $('div[id="'+sname+'_options"]').height(ir+50);
+  window.setTimeout('resizelist("'+sname+'", '+offset+')', 1);
+ }
+}
+var rubricloaded=0;
+var titleloaded=0;
+var orgloaded=0;
+var authorloaded=0;
+var yearloaded=0;
+var typeloaded=0;
+var roleloaded=0;
+var orgroleloaded=0;
+var isnew=0;
+
+$(document).ready(function() { 
+	didScroll=true;
+
+
+
+$('#rubric_order').change(function() { 
+var selids="";
+$('input:checkbox[id^="rubrics_"]:checked').each(function(){
+  selids += $(this).attr('name').substring(8) + "|"});
+$('#rubrics_options').html("<br>&nbsp;&nbsp;&nbsp;Загружается...");
+$('#rubrics_options').load("org_items_rubrics.asp?id=14346&orgdepid=0&order=" + $('#rubric_order').val() + "&selids=" + selids + "&show_sotr=0&show_refs=0&show_option=0&hide_doubles=1&rand=" + Math.random());
+rubricloaded=1;
+})
+$('*[id$="_rubrics"]').click(function() { 
+hideShowSel1('rubrics');
+if (rubricloaded==0){
+$('#rubrics_options').html("<br>&nbsp;&nbsp;&nbsp;Загружается...");
+$.get("org_items_rubrics.asp?id=14346&orgdepid=0&order=" + $('#rubric_order').val() + "&selids=" + "&show_sotr=0&show_refs=0&show_option=0&hide_doubles=1&rand=" + Math.random(), function(data) {
+  $('#rubrics_options').html(data);
+  if ($('#rubrics_table').height()<=200){$('#rubrics_options').height($('#rubrics_table').height()+10)}
+  else {$('#rubrics_options').height(200)};
+  rubricloaded=1;
+  })
+}
+else {
+  if ($('#rubrics_table').height()<=200){$('#rubrics_options').height($('#rubrics_table').height()+10)}
+  else {$('#rubrics_options').height(200)};
+}
+})
+
+
+$('#title_order').change(function() { 
+var selids="";
+$('input:checkbox[id^="titles_"]:checked').each(function(){
+  selids += $(this).attr('name').substring(7) + "|"});
+$('#titles_options').html("<br>&nbsp;&nbsp;&nbsp;Загружается...");
+$('#titles_options').load("org_items_titles.asp?id=14346&orgdepid=0&order=" + $('#title_order').val() + "&selids=" + selids + "&show_sotr=0&show_refs=0&show_option=0&hide_doubles=1&rand=" + Math.random());
+titleloaded=1;
+})
+$('*[id$="_titles"]').click(function() { 
+hideShowSel1('titles');
+if (titleloaded==0){
+$('#titles_options').html("<br>&nbsp;&nbsp;&nbsp;Загружается...");
+$.get("org_items_titles.asp?id=14346&orgdepid=0&order=" + $('#title_order').val() + "&selids=" + "&show_sotr=0&show_refs=0&show_option=0&hide_doubles=1&rand=" + Math.random(), function(data) {
+  $('#titles_options').html(data);
+  if ($('#titles_table').height()<=200){$('#titles_options').height($('#titles_table').height()+10)}
+  else {$('#titles_options').height(200)};
+  titleloaded=1;
+  })
+}
+else {
+  if ($('#titles_table').height()<=200){$('#titles_options').height($('#titles_table').height()+10)}
+  else {$('#titles_options').height(200)};
+}
+})
+
+
+$('#org_order').change(function() { 
+var selids="";
+$('input:checkbox[id^="orgs_"]:checked').each(function(){
+  selids += $(this).attr('name').substring(5) + "|"});
+$('#orgs_options').html("<br>&nbsp;&nbsp;&nbsp;Загружается...");
+$('#orgs_options').load("org_items_orgs.asp?id=14346&orgdepid=0&order=" + $('#org_order').val() + "&selids=" + selids + "&show_sotr=0&show_refs=0&show_option=0&hide_doubles=1&rand=" + Math.random());
+orgloaded=1;
+})
+$('*[id$="_orgs"]').click(function() { 
+hideShowSel1('orgs');
+if (orgloaded==0){
+$('#orgs_options').html("<br>&nbsp;&nbsp;&nbsp;Загружается...");
+$.get("org_items_orgs.asp?id=14346&orgdepid=0&order=" + $('#org_order').val() + "&selids=" + "&show_sotr=0&show_refs=0&show_option=0&hide_doubles=1&rand=" + Math.random(), function(data) {
+  $('#orgs_options').html(data);
+  if ($('#orgs_table').height()<=200){$('#orgs_options').height($('#orgs_table').height()+10)}
+  else {$('#orgs_options').height(200)};
+  orgloaded=1;
+  })
+}
+else {
+  if ($('#orgs_table').height()<=200){$('#orgs_options').height($('#orgs_table').height()+10)}
+  else {$('#orgs_options').height(200)};
+}
+})
+
+
+$('#author_order').change(function() { 
+var selids="";
+$('input:checkbox[id^="authors_"]:checked').each(function(){
+  selids += $(this).attr('name').substring(8) + "|"});
+selids = encodeURIComponent(selids);
+$('#authors_options').html("<br>&nbsp;&nbsp;&nbsp;Загружается...");
+$('#authors_options').load("org_items_authors.asp?id=14346&orgdepid=0&order=" + $('#author_order').val() + "&selids=" + selids + "&show_sotr=0&show_refs=0&show_option=0&hide_doubles=1&rand=" + Math.random());
+authorloaded=1;
+})
+$('*[id$="_authors"]').click(function() { 
+hideShowSel1('authors');
+if (authorloaded==0){
+$('#authors_options').html("<br>&nbsp;&nbsp;&nbsp;Загружается...");
+$.get("org_items_authors.asp?id=14346&orgdepid=0&order=" + $('#author_order').val() + "&selids=" + "&show_sotr=0&show_refs=0&show_option=0&hide_doubles=1&rand=" + Math.random(), function(data) {
+  $('#authors_options').html(data);
+  if ($('#authors_table').height()<=200){$('#authors_options').height($('#authors_table').height()+10)}
+  else {$('#authors_options').height(200)};
+  authorloaded=1;
+  })
+}
+else {
+  if ($('#authors_table').height()<=200){$('#authors_options').height($('#authors_table').height()+10)}
+  else {$('#authors_options').height(200)};
+}
+})
+
+
+$('#year_order').change(function() { 
+var selids="";
+$('input:checkbox[id^="years_"]:checked').each(function(){
+  selids += $(this).attr('name').substring(6) + "|"});
+$('#years_options').html("<br>&nbsp;&nbsp;&nbsp;Загружается...");
+$('#years_options').load("org_items_years.asp?id=14346&orgdepid=0&order=" + $('#year_order').val() + "&selids=" + selids + "&show_sotr=0&show_refs=0&show_option=0&hide_doubles=1&rand=" + Math.random());
+yearloaded=1;
+})
+$('*[id$="_years"]').click(function() { 
+hideShowSel1('years');
+if (yearloaded==0){
+$('#years_options').html("<br>&nbsp;&nbsp;&nbsp;Загружается...");
+$.get("org_items_years.asp?id=14346&orgdepid=0&order=" + $('#year_order').val() + "&selids=" + "&show_sotr=0&show_refs=0&show_option=0&hide_doubles=1&rand=" + Math.random(), function(data) {
+  $('#years_options').html(data);
+  if ($('#years_table').height()<=200){$('#years_options').height($('#years_table').height()+10)}
+  else {$('#years_options').height(200)};
+  yearloaded=1;
+  })
+}
+else {
+  if ($('#years_table').height()<=200){$('#years_options').height($('#years_table').height()+10)}
+  else {$('#years_options').height(200)};
+}
+})
+
+
+$('#type_order').change(function() { 
+var selids="";
+$('input:checkbox[id^="types_"]:checked').each(function(){
+  selids += $(this).attr('name').substring(6) + "|"});
+$('#types_options').html("<br>&nbsp;&nbsp;&nbsp;Загружается...");
+$('#types_options').load("org_items_types.asp?id=14346&orgdepid=0&order=" + $('#type_order').val() + "&selids=" + selids + "&show_sotr=0&show_refs=0&show_option=0&hide_doubles=1&rand=" + Math.random());
+typeloaded=1;
+})
+$('*[id$="_types"]').click(function() { 
+hideShowSel1('types');
+if (typeloaded==0){
+$('#types_options').html("<br>&nbsp;&nbsp;&nbsp;Загружается...");
+$.get("org_items_types.asp?id=14346&orgdepid=0&order=" + $('#type_order').val() + "&selids=" + "&show_sotr=0&show_refs=0&show_option=0&hide_doubles=1&rand=" + Math.random(), function(data) {
+  $('#types_options').html(data);
+  if ($('#types_table').height()<=200){$('#types_options').height($('#types_table').height()+10)}
+  else {$('#types_options').height(200)};
+  typeloaded=1;
+  })
+}
+else {
+  if ($('#types_table').height()<=200){$('#types_options').height($('#types_table').height()+10)}
+  else {$('#types_options').height(200)};
+}
+})
+
+
+$('#role_order').change(function() { 
+var selids="";
+$('input:checkbox[id^="roles_"]:checked').each(function(){
+  selids += $(this).attr('name').substring(6) + "|"});
+$('#roles_options').html("<br>&nbsp;&nbsp;&nbsp;Загружается...");
+$('#roles_options').load("org_items_roles.asp?id=14346&orgdepid=0&order=" + $('#role_order').val() + "&selids=" + selids + "&show_sotr=0&show_refs=0&show_option=0&hide_doubles=1&rand=" + Math.random());
+roleloaded=1;
+})
+$('*[id$="_roles"]').click(function() { 
+hideShowSel1('roles');
+if (roleloaded==0){
+$('#roles_options').html("<br>&nbsp;&nbsp;&nbsp;Загружается...");
+$.get("org_items_roles.asp?id=14346&orgdepid=0&order=" + $('#role_order').val() + "&selids=" + "&show_sotr=0&show_refs=0&show_option=0&hide_doubles=1&rand=" + Math.random(), function(data) {
+  $('#roles_options').html(data);
+  if ($('#roles_table').height()<=200){$('#roles_options').height($('#roles_table').height()+10)}
+  else {$('#roles_options').height(200)};
+  roleloaded=1;
+  })
+}
+else {
+  if ($('#roles_table').height()<=200){$('#roles_options').height($('#roles_table').height()+10)}
+  else {$('#roles_options').height(200)};
+}
+})
+
+
+$('#orgrole_order').change(function() { 
+var selids="";
+$('input:checkbox[id^="orgroles_"]:checked').each(function(){
+  selids += $(this).attr('name').substring(9) + "|"});
+$('#orgroles_options').html("<br>&nbsp;&nbsp;&nbsp;Загружается...");
+$('#orgroles_options').load("org_items_orgroles.asp?id=14346&orgdepid=0&order=" + $('#orgrole_order').val() + "&selids=" + selids + "&show_sotr=0&show_refs=0&show_option=0&hide_doubles=1&rand=" + Math.random());
+orgroleloaded=1;
+})
+$('*[id$="_orgroles"]').click(function() { 
+hideShowSel1('orgroles');
+if (orgroleloaded==0){
+$('#orgroles_options').html("<br>&nbsp;&nbsp;&nbsp;Загружается...");
+$.get("org_items_orgroles.asp?id=14346&orgdepid=0&order=" + $('#orgrole_order').val() + "&selids=" + "&show_sotr=0&show_refs=0&show_option=0&hide_doubles=1&rand=" + Math.random(), function(data) {
+  $('#orgroles_options').html(data);
+  if ($('#orgroles_table').height()<=200){$('#orgroles_options').height($('#orgroles_table').height()+10)}
+  else {$('#orgroles_options').height(200)};
+  orgroleloaded=1;
+  })
+}
+else {
+  if ($('#orgroles_table').height()<=200){$('#orgroles_options').height($('#orgroles_table').height()+10)}
+  else {$('#orgroles_options').height(200)};
+}
+})
+
+
+})
+
+function reset_form(){
+  var frm = document.forms["results"];
+  deselect_options("rubric"); 
+  deselect_options("title"); 
+  deselect_options("org"); 
+  deselect_options("author"); 
+  deselect_options("year"); 
+  deselect_options("type"); 
+  deselect_options("role"); 
+  deselect_options("orgrole"); 
+}
+function pub_search(){
+  var frm = document.forms["results"];
+    frm.pagenum.value=1;
+    frm.action="org_items.asp";
+    frm.target="";
+    frm.submit()
+}
+function itembox_add(){
+  var frm = document.forms["results"];
+  var issel=0;
+  frm.items_all.value="";
+  for (var i = 0; i < frm.elements.length; i++) {
+    if (frm.elements[i].name.substring(0,3)=="tid"){
+       if (frm.elements[i].checked) {
+	     issel=issel+1;
+	     frm.items_all.value = frm.items_all.value + frm.elements[i].name.substring(3, frm.elements[i].name.length) + "|";
+	   }
+    }
+ }
+ if (issel==0) {
+    alerts ("Не выделено ни одной публикации")}
+ else {
+    $.fancybox({
+      href : 'itembox_item_add2.asp?itemboxid='+frm.itemboxid.value+'&items_all='+frm.items_all.value ,
+      title : '',
+	  padding : 20,     
+	  width : 480,
+	  height : 150,
+	  overlayOpacity : 0.3,	
+	  overlayColor : '#000',
+	  speedIn : 500,
+	  hideOnOverlayClick : false,
+	  enableEscapeButton : true,
+	  type : 'iframe'
+    });
+  }
+}
+
+function itembox_new(aid,anam){
+  var frm = document.forms["results"];
+  var el = document.createElement("OPTION");
+  el.text=anam;
+  el.value=aid;
+  frm.itemboxid.options[frm.itemboxid.options.length]=el;
+  frm.itemboxid[frm.itemboxid.length-1].selected=true;
+}
+function itembox_add_all(){
+  var frm = document.forms["results"];
+    $.fancybox({
+      href : 'itembox_item_add2.asp?itemboxid='+frm.itemboxid.value+'&add_all=2' ,
+      title : '',
+	  padding : 20,     
+	  width : 480,
+	  height : 150,
+	  overlayOpacity : 0.3,	
+	  overlayColor : '#000',
+	  speedIn : 500,
+	  hideOnOverlayClick : false,
+	  enableEscapeButton : true,
+	  type : 'iframe'
+    });
+}
+function newquery(){
+  document.forms["results"].action="querybox.asp";
+  document.forms["results"].target="";
+  document.forms["results"].submit()
+}
+function show_help(topic){
+  anewwin=window.open("", "addwin", "resizable=yes,scrollbars=yes,height=300,width=500,top=0,left=0");
+  document.forms["results"].action=topic;
+  document.forms["results"].target="addwin";
+  document.forms["results"].submit()
+}
+function load_article(id){
+
+  alerts("Для доступа к полному тексту необходимо вначале войти в библиотеку!");
+  document.getElementById("win_login").className = "expanded";
+  document.getElementById("img_login").src = w_up.src;
+  document.forms["login"].login.focus();
+
+}
+function url_article(idid, urlnum){
+
+  alerts("Для просмотра документа необходимо вначале войти в библиотеку!");
+  document.getElementById("win_login").className = "expanded";
+  document.getElementById("img_login").src = w_up.src;
+  document.forms["login"].login.focus();
+
+}
+function order_item(id, pr){
+
+  alerts("Для заказа полного текста публикации необходимо вначале войти в библиотеку!");
+  document.getElementById("win_login").className = "expanded";
+  document.getElementById("img_login").src = w_up.src;
+  document.forms["login"].login.focus();
+
+}
+function goto_page(pnum){
+  var frm = document.forms["results"];
+  frm.pagenum.value=pnum;
+  frm.action="org_items.asp";
+  frm.target="";
+  frm.submit()
+}
+
+
+
+
+function isVisible(tag) {
+    var t = $(tag);
+    var w = $(window);
+    var wt = w.scrollTop();
+    var tt = t.offset().top;
+    var tb = tt + t.height();
+    return ((tb <= wt + w.height()) && (tt >= wt));
+}
+function pdf_icon(b) {
+  if (!b.prop("shown") && isVisible(b)) {
+    b.prop("shown", true);
+    b.load("ispdf.asp?itemid=" + b.attr('name').substring(4) + "&rand=" + Math.random());
+  }
+}
+function get_pdfs(){
+  $('div[id^="pdf_"]:not(prop("shown"))').each(function(){
+    pdf_icon($(this))
+  });
+}
+setInterval(function() {
+  if ( didScroll2 ) {
+	didScroll2=false;
+	get_pdfs();
+    }
+ }, 200);
+
+</SCRIPT>
+</head>
+
+<body onLoad='document.all.loading.style.display="none"; document.all.thepage.style.display=""'>
+
+<div id="loading" style="position:absolute; width:100%; text-align:center; top:300px;">
+Пожалуйста, подождите, <br>пока Ваш запрос будет обработан
+<br><img src="/pic/query_wait.gif" border=0 width=31 height=31 vspace=5></div>
+
+<div id="thepage" style="display: none">
+<table width=100% cellpadding=0 cellspacing=0 border=0>
+<tr><td width=100% align=center valign=top>
+
+
+<table  cellpadding=0 cellspacing=0 border=0>
+<tr><td width=170 align=left valign=top id="leftcol">
+
+<table border=0 cellspacing=0 cellpadding=0 width=150>
+
+<tr><td><a href="/defaultx.asp"><img src="/images/welcome1.jpg" width=150 title="НАУЧНАЯ ЭЛЕКТРОННАЯ БИБЛИОТЕКА eLIBRARY.RU" border=0 vspace=15></a></td></tr>
+
+
+<tr><td><a href="/defaultx.asp"><img id="elibrary_logo" src="/images/elibrary_logo2.svg" width=150 height=39 border=0 vspace=10 title="eLIBRARY.RU - НАУЧНАЯ ЭЛЕКТРОННАЯ БИБЛИОТЕКА"></a></td></tr>
+<script language="JavaScript">
+if (supportsSVG) {
+  document.getElementById("elibrary_logo").src="/images/elibrary_logo2.svg";}
+else {
+  document.getElementById("elibrary_logo").src="/images/elibrary_logo.gif";}
+</script>
+<tr><td><img src="/pic/1pix.gif" vspace=7></td></tr>
+
+<tr><td width=100% align=center valign=top>
+
+<div class="left-panel">
+
+<table border=0 cellspacing=0 cellpadding=0 width=140>
+<tr><td width=100% align=center valign=top><font color=#F26C4F><b><span class="expandable" onClick="$('#win_basket').slideToggle(500, function(){didScroll = true;})" title="Состояние корзины в электронном магазине eLIBRARY.ru">КОРЗИНА</span></b></font>
+</td></tr>
+</table>
+
+<div ID="win_basket" class="collapsed">
+<div style="height: 10px;"></div>
+
+<table border=0 cellspacing=0 cellpadding=2 width=140>
+
+<tr><td width=100% align=center valign=top>
+<div style="height: 2px;"></div>
+&nbsp;<font color=#000000>Всего в корзине:&nbsp;</font><font color=#00008f><b><span id="basket_num">0</span></b>&nbsp;публ.</font></td></tr>
+<tr><td width=100% align=center valign=top>
+&nbsp;<font color=#000000>на сумму:&nbsp;</font><font color=#00008f><b><span id="basket_sum">0</span></b>&nbsp;руб.</font></td></tr>
+</td></tr>
+
+</table>
+
+<div style="height: 10px;"></div>
+
+<table border=0 cellspacing=0 cellpadding=0 width=140>
+<tr class="menub"><td align=center width=30 valign=bottom><a href="/basket.asp"><img src="images/basket.png" width=15 height=15 border=0></a></td><td align=left width=110 valign=top><a href="/basket.asp">Содержание корзины</a></td></tr>
+</table>
+
+</div>
+</div>
+</td></tr>
+
+<tr><td><img src="/pic/1pix.gif" vspace=9></td></tr>
+<SCRIPT LANGUAGE="JavaScript">
+function check_search(){
+if (document.forms["search"].ftext.value.length > 1) {
+  var frm = document.forms["search"];
+  frm.action="/query_results.asp";
+  frm.target="";
+  frm.submit();
+  }
+else {
+  alert("Введите не менее двух символов");
+  }
+}
+function search_enter(event){ 
+  var keycode; 
+  event = event || window.event; 
+  keycode = event.keyCode || event.which;
+  if(keycode==13){
+    check_search();
+	return false;
+  }
+} 
+</SCRIPT>
+<FORM method=post name="search" onSubmit="return false">
+<input type="hidden" name="where_fulltext" value="on">
+<input type="hidden" name="where_name" value="on">
+<input type="hidden" name="where_abstract" value="on">
+<input type="hidden" name="where_keywords" value="on">
+<input type="hidden" name="where_affiliation" value="">
+<input type="hidden" name="where_references" value="">
+<input type="hidden" name="type_article" value="on">
+<input type="hidden" name="type_disser" value="on">
+<input type="hidden" name="type_book" value="on">
+<input type="hidden" name="type_report" value="on">
+<input type="hidden" name="type_conf" value="on">
+<input type="hidden" name="type_patent" value="on">
+<input type="hidden" name="type_preprint" value="on">
+<input type="hidden" name="type_grant" value="on">
+<input type="hidden" name="type_dataset" value="on">
+<input type="hidden" name="search_freetext" value="">
+<input type="hidden" name="search_morph" value="on">
+<input type="hidden" name="search_fulltext" value="">
+<input type="hidden" name="search_open" value="">
+<input type="hidden" name="search_results" value="">
+<input type="hidden" name="titles_all" value="">
+<input type="hidden" name="authors_all" value="">
+<input type="hidden" name="rubrics_all" value="">
+<input type="hidden" name="queryboxid" value="">
+<input type="hidden" name="itemboxid" value="">
+<input type="hidden" name="begin_year" value="">
+<input type="hidden" name="end_year" value="">
+<input type="hidden" name="issues" value="all">
+<input type="hidden" name="orderby" value="rank">
+<input type="hidden" name="order" value="rev">
+<input type="hidden" name="changed" value="1">
+
+<tr><td width=100% align=center valign=top>
+
+<div class="left-panel">
+
+<table border=0 cellspacing=0 cellpadding=0 width=140>
+<tr><td width=100% align=center valign=top><font color=#F26C4F><b><span class="expandable" onClick="$('#win_search').slideToggle(500, function(){didScroll = true;})" title="Поиск в Научной электронной библиотеке">ПОИСК</span></b></font>
+</td></tr>
+</table>
+<div ID="win_search" class="collapsed">
+
+<table border=0 cellspacing=0 cellpadding=0 width=140>
+<tr><td width=140 align=center valign=top>
+<div style="height: 10px;"></div>
+<div class="formfr" style="width:126px;"><input type=text id="ftext" name="ftext" value="" style="width:118px;" class="inputt" onKeyPress="search_enter(event);"></div>
+<div style="height: 11px;"></div>
+
+<div class="butblue" style="width: 52px;" onClick="check_search()">Найти</div>
+
+</td></tr>
+<tr><td><img src="/pic/1pix.gif"></td></tr>
+</table>
+
+<table border=0 cellspacing=0 cellpadding=0 width=140>
+<tr class="menub"><td align=center width=20 valign=bottom><img src="/images/or_kv.gif" width=7 height=7 vspace=1 class="shadow"></td><td align=left width=120 valign=top><a href="/querybox.asp?scope=newquery">Расширенный поиск</a></td></tr>
+
+
+<tr><td colspan=2><div style="height:3px;"></div></td></tr>
+<tr class="menub"><td align=center width=20 valign=bottom><img src="/images/or_kv.gif" width=7 height=7 vspace=1 class="shadow"></td><td align=left width=120 valign=top><a href="/neural_search.asp">Нейропоиск</a></td></tr>
+</table>
+<div style="height: 4px;"></div>
+</div>
+</div>
+
+</FORM>
+
+</td></tr>
+
+<tr><td><img src="/pic/1pix.gif" vspace=9></td></tr>
+<SCRIPT LANGUAGE="JavaScript">
+function check_all(){
+  if (document.forms["login"].login.value==""){
+    alert("Не указано имя пользователя!");
+	return false;
+	}
+  else if (document.forms["login"].password.value==""){
+    alert("Не указан пароль!");
+	return false;
+	}
+  else{
+    var frm = document.forms["login"];
+    frm.action="/start_session.asp";
+    frm.target="";
+    frm.submit();
+   }
+}
+function login_enter(event){ 
+  var keycode; 
+  event = event || window.event; 
+  keycode = event.keyCode || event.which;
+  if(keycode==13){
+    check_all();
+	return false;
+  }
+} 
+function sso_orgs(){
+  var frm = document.forms["results"];
+  $.fancybox({
+    href : 'sso_orgs.asp' ,
+    title : '',
+	  padding : 20,     
+	  width : 480,
+	  height : 200,
+	  overlayOpacity : 0.3,	
+	  overlayColor : '#000',
+	  speedIn : 500,
+	  hideOnOverlayClick : false,
+	  enableEscapeButton : true,
+	  type : 'iframe'
+  });
+}
+function show_hide_password(target){
+	var input = document.getElementById('password');
+	if (input.getAttribute('type') == 'password') {
+		target.classList.add('view');
+		input.setAttribute('type', 'text');
+	} 
+	else {
+		target.classList.remove('view');
+		input.setAttribute('type', 'password');
+	}
+	return false;
+}
+</SCRIPT>
+
+<FORM method=post name="login" onSubmit="return false">
+<input type=hidden name="rpage" value=https://www.elibrary.ru/org_items.asp?show_refs=0&org_order=0&sortorder=0&itembox_name=&paysum=&pagenum=32&title_order=0&show_option=0&add_all=&hide_doubles=1&author_order=0&orgrole_order=0&orgsid=14346&did=1&orgdepid=0&items_all=&show_sotr=0&urlnum=1&itemboxid=0&rubric_order=0&role_order=0&order=1&year_order=1&type_order=0&check_hide_doubles=on>
+<tr><td width=100% align=center valign=top>
+
+<div class="left-panel">
+
+<table border=0 cellspacing=0 cellpadding=0 width=140>
+<tr><td width=100% align=center valign=top><font color=#F26C4F><b><span class="expandable" onClick="$('#win_login').slideToggle(500, function(){didScroll = true;})" title="Вход в библиотеку для зарегистрированных пользователей">ВХОД</span></b></font>
+</td></tr>
+</table>
+
+<div ID="win_login" class="expanded">
+<div style="height: 10px;"></div>
+
+<table border=0 cellspacing=0 cellpadding=2 width=140>
+
+<tr><td width=100% align=left valign=top>
+&nbsp;<font color=#000000>IP-адрес компьютера:</font></td></tr>
+<tr><td width=100% align=center valign=top>
+<font color=#00008f>188.130.155.184</font></td></tr>
+<tr><td width=100% align=left valign=top>
+<div style="height: 2px;"></div>
+&nbsp;<font color=#000000>Название организации:</font></td></tr>
+<tr><td width=100% align=center valign=top>
+
+<font color=#00008f>не определена</font></td></tr>
+
+<tr><td width=100% align=left valign=top>
+<div style="height: 2px;"></div>
+&nbsp;<font color=#000000>Имя пользователя<br>&nbsp;или адрес эл. почты:</font></td></tr>
+<tr><td width=100% align=center valign=top>
+<div class="formfr" style="width:126px;"><input type=text id="login" name="login" value="" style="width:118px; text-align:center;" class="inputt" onKeyPress="login_enter(event)"></div>
+</td></tr>
+<tr><td width=100% align=left valign=top>
+<div style="height: 2px;"></div>
+&nbsp;<font color=#000000>Пароль:</font></td></tr>
+<tr><td align=center width=100%>
+<div class="formfr" style="width:126px;"><input type=password id="password" name="password" value="" style="width:102px; text-align:center;" class="inputt" onKeyPress="login_enter(event)"><a href="#" class="password-control" onclick="return show_hide_password(this);"></a></div>
+</td></tr>
+
+<tr><td align=center width=100%>
+
+<div style="height: 9px;"></div>
+<div class="butred" style="width: 52px;" onClick="check_all()">Вход</div>
+<div style="height: 9px;"></div>
+
+</td></tr></table>
+
+<table border=0 cellspacing=3 cellpadding=0 width=140>
+<tr valign=middle class="menub"><td align=center width=30><input type=checkbox name="knowme"></td><td align=left width=101>Запомнить меня</td></tr>
+<tr class="menub"><td align=right width=30 valign=top><img src="/images/or_kv.gif" width=7 height=7 hspace=9 vspace=1 class="shadow"></td><td align=left width=101 valign=top ><a href="/access_terms.asp">Правила доступа</a></td></tr>
+<tr class="menub"><td align=right width=30 valign=top><img src="/images/or_kv.gif" width=7 height=7 hspace=9 vspace=1 class="shadow"></td><td align=left width=101 valign=top ><a href="/author_info.asp?isnew=1&rpage=https%3A%2F%2Fwww%2Eelibrary%2Eru%2Forg%5Fitems%2Easp%3Fshow%5Frefs%3D0%26org%5Forder%3D0%26sortorder%3D0%26itembox%5Fname%3D%26paysum%3D%26pagenum%3D32%26title%5Forder%3D0%26show%5Foption%3D0%26add%5Fall%3D%26hide%5Fdoubles%3D1%26author%5Forder%3D0%26orgrole%5Forder%3D0%26orgsid%3D14346%26did%3D1%26orgdepid%3D0%26items%5Fall%3D%26show%5Fsotr%3D0%26urlnum%3D1%26itemboxid%3D0%26rubric%5Forder%3D0%26role%5Forder%3D0%26order%3D1%26year%5Forder%3D1%26type%5Forder%3D0%26check%5Fhide%5Fdoubles%3Don">Регистрация</a></td></tr>
+<tr class="menub"><td align=right width=30 valign=top><img src="/images/or_kv.gif" width=7 height=7 hspace=9 vspace=1 class="shadow"></td><td align=left width=101 valign=top ><a href="/pass_request.asp">Забыли пароль?</a></td></tr>
+
+
+<tr class="menub"><td align=right width=30 valign=top><img src="/images/or_kv.gif" width=7 height=7 hspace=9 vspace=1 class="shadow"></td><td align=left width=101 valign=top><a href="javascript:sso_orgs()">Вход через Вашу организацию</a></td></tr>
+
+
+</table>
+<div style="height: 4px;"></div>
+</div>
+</div>
+</td></tr>
+</FORM>
+
+<tr><td><img src="/pic/1pix.gif" vspace=9></td></tr>
+<tr><td width=100% align=center valign=top>
+
+<div class="left-panel">
+
+<table border=0 cellspacing=0 cellpadding=0 width=140>
+<tr><td width=100% align=center valign=top><font color=#F26C4F><b><span class="expandable" onClick="$('#win_goto').slideToggle(500, function(){didScroll = true;})" title="Быстрый переход на популярные страницы сайта">НАВИГАТОР</span></b></font>
+</td></tr>
+</table>
+
+<div ID="win_goto" class="collapsed">
+<div style="height: 10px;"></div>
+
+<table border=0 cellspacing=4 cellpadding=0 width=140>
+
+<tr valign=top><td width=25 align=center><img src="/images/bl_kv.gif" border=0 width=7 height=7 hspace=3 class="shadow"></td><td align=left width=115><a href="/titles.asp">ЖУРНАЛЫ</a></td></tr>
+<tr valign=top><td align=center><img src="/images/bl_kv.gif" border=0 width=7 height=7 hspace=3 class="shadow"></td><td align=left><a href="/books.asp">КНИГИ</a></td></tr>
+<tr valign=top><td align=center><img src="/images/bl_kv.gif" border=0 width=7 height=7 hspace=3 class="shadow"></td><td align=left><a href="/patents.asp">ПАТЕНТЫ</a></td></tr>
+<tr valign=top><td align=center><img src="/images/bl_kv.gif" border=0 width=7 height=7 hspace=3 class="shadow"></td><td align=left><a href="/querybox.asp">ПОИСК</a></td></tr>
+<tr valign=top><td align=center><img src="/images/bl_kv.gif" border=0 width=7 height=7 hspace=3 class="shadow"></td><td align=left><a href="/authors.asp">АВТОРЫ</a></td></tr>
+<tr valign=top><td align=center><img src="/images/bl_kv.gif" border=0 width=7 height=7 hspace=3 class="shadow"></td><td align=left><a href="/orgs.asp">ОРГАНИЗАЦИИ</a></td></tr>
+<tr valign=top><td align=center><img src="/images/bl_kv.gif" border=0 width=7 height=7 hspace=3 class="shadow"></td><td align=left><a href="/keywords.asp">КЛЮЧЕВЫЕ СЛОВА</a></td></tr>
+<tr valign=top><td align=center><img src="/images/bl_kv.gif" border=0 width=7 height=7 hspace=3 class="shadow"></td><td align=left><a href="/rubrics.asp">РУБРИКАТОР</a></td></tr>
+
+
+</table>
+
+<div style="height: 10px;"></div>
+
+<table border=0 cellspacing=0 cellpadding=0 width=140>
+<tr class="menub"><td align=right width=25 valign=bottom><img src="/images/or_kv.gif" width=7 height=7 border=0 hspace=6 vspace=1 class="shadow"></td><td align=left width=115 valign=top><a href="/defaultx.asp">Начальная страница</a></td></tr></table>
+<div style="height: 4px;"></div>
+
+</div>
+</div>
+</td></tr>
+
+<tr><td><img src="/pic/1pix.gif" vspace=9></td></tr>
+<tr><td width=100% align=center valign=top>
+
+<div class="left-panel">
+
+<table border=0 cellspacing=0 cellpadding=0 width=140>
+<tr><td width=100% align=center valign=top><font color=#F26C4F><b><span class="expandable" onClick="$('#win_legend').slideToggle(500, function(){didScroll = true;})" title="Назначение используе">ЛЕГЕНДА</span></b></font>
+</td></tr>
+</table>
+
+<div ID="win_legend" class="expanded">
+
+<div style="height: 10px;"></div>
+<table width=100% cellspacing=0 cellpadding=3 border=0 bgcolor=#eeeeee>
+<tr><td width=15% align=right valign=top><img src="/images/download_green.png" width=16 hspace=3 border=0></td><td width=85% align=left valign=middle><font color=#00008f>Доступ к полному тексту документа открыт</font></td></tr>
+<tr><td align=right valign=top><img src="/images/download_blue.png" width=16 hspace=3 border=0></td><td align=left valign=middle><font color=#00008f>Полный текст доступен на сайте издателя</font></td></tr>
+<tr><td align=right valign=top><img src="/images/download_yellow.png" width=16 hspace=3 border=0></td><td align=left valign=middle><font color=#00008f>Полный текст может быть получен через систему заказа</font></td></tr>
+<tr><td align=right valign=top><img src="/images/download_orange.png" width=16 hspace=3 border=0></td><td align=left valign=middle><font color=#00008f>Доступ к полному тексту закрыт</font></td></tr>
+<tr><td valign=top align=center><font color=#00008f>-</font></td><td align=left><font color=#00008f>Если иконки нет - полный текст документа отсутствует в НЭБ</font></td></tr>
+
+</table>
+
+</div></div>
+</td></tr>
+
+
+<tr><td><img src="/pic/1pix.gif" vspace=9></td></tr>
+<SCRIPT LANGUAGE="JavaScript">
+function end_session(){
+
+  document.forms["session"].saveuser.value="1";
+
+  document.forms["session"].action="/end_session.asp";
+  document.forms["session"].target="";
+  document.forms["session"].submit()
+}
+</SCRIPT>
+<FORM action="/end_session.asp" method=POST name="session">
+<input type="hidden" name="saveuser" value="1">
+
+<tr><td width=100% align=center valign=top>
+
+<div class="left-panel">
+
+<table border=0 cellspacing=0 cellpadding=0 width=140>
+<tr><td width=100% align=center valign=top><font color=#F26C4F><b><span class="expandable" onClick="$('#win_session').slideToggle(500, function(){didScroll = true;})" title="Информация о текущей сессии пользователя">СЕССИЯ</span></b></font>
+</td></tr>
+</table>
+
+
+<div ID="win_session" class="collapsed">
+<div style="height: 10px;"></div>
+
+<table border=0 cellspacing=0 cellpadding=2 width=140>
+<tr><td width=100% align=left valign=top>
+&nbsp;<font color=#000000>Имя пользователя:</font></td></tr>
+<tr><td width=100% align=center valign=top>
+<font color=#00008f>Незарегистрированный пользователь</font></td></tr>
+
+
+<tr><td width=100% align=left valign=top>
+<div style="height: 2px;"></div>
+&nbsp;<font color=#000000>Начало работы:</font></td></tr>
+
+<tr><td width=100% align=center valign=top>
+<font color=#00008f>25.05.2025 11:06</font></td></tr>
+<tr><td width=100% align=left valign=top>
+<div style="height: 2px;"></div>
+&nbsp;<font color=#000000>Время работы:</font></td></tr>
+<tr><td width=100% align=center valign=top>
+<font color=#00008f>00:23</font></td></tr>
+</table>
+
+<div style="height: 10px;"></div>
+
+<table border=0 cellspacing=3 cellpadding=0 width=140>
+<tr class="menub"><td align=right width=30 valign=top><img src="/images/or_kv.gif" width=7 height=7 border=0 hspace=9 vspace=1 class="shadow"></td><td align=left width=101 valign=top><a href="/project_user_office.asp">Личный кабинет</a></td></tr>
+<tr class="menub"><td align=right width=30 valign=top><img src="/images/or_kv.gif" width=7 height=7 border=0 hspace=9 vspace=1 class="shadow"></td><td align=left width=101 valign=top><a href="javascript:end_session()">Закрыть сессию</a></td></tr>
+
+
+</table>
+<div style="height: 4px;"></div>
+
+</div>
+</div>
+</td></tr>
+
+<tr><td><img src="/pic/1pix.gif" vspace=9></td></tr>
+</FORM>
+
+<tr><td width=100% align=center valign=top>
+
+<div class="left-panel">
+
+<table border=0 cellspacing=0 cellpadding=0 width=140>
+<tr><td width=100% align=center valign=top><font color=#F26C4F><b><span class="expandable" onClick="$('#win_contact').slideToggle(500, function(){didScroll = true;})" title="Контактная информация Научной электронной библиотеки">КОНТАКТЫ</span></b></font>
+</td></tr>
+</table>
+
+<div ID="win_contact" class="collapsed">
+<div style="height: 10px;"></div>
+
+<table border=0 cellspacing=0 cellpadding=2 width=140>
+
+
+<tr><td width=100% align=left valign=top>
+<div style="height: 2px;"></div>
+&nbsp;<font color=#000000>Служба поддержки:</font></td></tr>
+<tr><td width=100% align=center valign=top>
+<font color=#00008f>+7 (495) 544-2494 доб. 1<br></font>
+<font color=#00008f><a href="mailto:support@elibrary.ru">support@elibrary.ru</a></font></td></tr>
+</td></tr>
+
+<tr><td width=100% align=left valign=top>
+<div style="height: 2px;"></div>
+&nbsp;<font color=#000000>Издателям журналов:</font></td></tr>
+<tr><td width=100% align=center valign=top>
+<font color=#00008f>+7 (495) 544-2494 доб. 2<br></font>
+<font color=#00008f><a href="mailto:publish@elibrary.ru">publish@elibrary.ru</a></font></td></tr>
+
+
+<tr><td width=100% align=left valign=top>
+<div style="height: 2px;"></div>
+&nbsp;<font color=#000000>Издателям книг:</font></td></tr>
+<tr><td width=100% align=center valign=top>
+<font color=#00008f>+7 (495) 544-2494 доб. 3<br></font>
+<font color=#00008f><a href="mailto:book@elibrary.ru">book@elibrary.ru</a></font></td></tr>
+
+<tr><td width=100% align=left valign=top>
+<div style="height: 2px;"></div>
+&nbsp;<font color=#000000>Science Space для издательств:</font></td></tr>
+<tr><td width=100% align=center valign=top>
+<font color=#00008f>+7 (495) 544-2494 доб. 4<br></font>
+<font color=#00008f><a href="mailto:info@sciencespace.ru">info@sciencespace.ru</a></font></td></tr>
+
+
+<tr><td width=100% align=left valign=top>
+<div style="height: 2px;"></div>
+&nbsp;<font color=#000000>Science Index для организаций:</font></td></tr>
+<tr><td width=100% align=center valign=top>
+<font color=#00008f>+7 (495) 544-2494 доб. 4<br></font>
+<font color=#00008f><a href="mailto:org@scienceindex.ru">org@scienceindex.ru</a></font></td></tr>
+
+<tr><td width=100% align=left valign=top>
+<div style="height: 2px;"></div>
+&nbsp;<font color=#000000>Доступ к API:</font></td></tr>
+<tr><td width=100% align=center valign=top>
+<font color=#00008f>+7 (495) 544-2494 доб. 4<br></font>
+<font color=#00008f><a href="mailto:api@elibrary.ru">api@elibrary.ru</a></font></td></tr>
+
+<tr><td width=100% align=left valign=top>
+<div style="height: 2px;"></div>
+&nbsp;<font color=#000000>Подписчикам:</font></td></tr>
+<tr><td width=100% align=center valign=top>
+<font color=#00008f>+7 (495) 544-2494 доб. 6<br></font>
+<font color=#00008f><a href="mailto:sales.team@elibrary.ru">sales.team@elibrary.ru</a></font></td></tr>
+
+<tr><td width=100% align=left valign=top>
+<div style="height: 2px;"></div>
+&nbsp;<font color=#000000>Конференции, семинары:</font></td></tr>
+<tr><td width=100% align=center valign=top>
+<font color=#00008f>+7 (495) 544-2494 доб. 7<br></font>
+<font color=#00008f><a href="mailto:conf@elibrary.ru">conf@elibrary.ru</a></font></td></tr>
+
+<tr><td width=100% align=left valign=top>
+<div style="height: 2px;"></div>
+&nbsp;<font color=#000000>Почтовый адрес:</font></td></tr>
+<tr><td width=100% align=center valign=top>
+<font color=#00008f><a href="/contact_new.asp">117246, г. Москва,
+Научный проезд, д. 14А, стр. 3, таунхаус 1</a></font></td></tr>
+
+<tr><td width=100% align=left valign=top>
+<div style="height: 2px;"></div>
+&nbsp;<font color=#000000>Веб-сайт:</font></td></tr>
+<tr><td width=100% align=center valign=top>
+<font color=#00008f><a href="https://elibrary.ru">https://elibrary.ru</a></font></td></tr>
+
+<tr><td width=100% align=left valign=top>
+<div style="height: 2px;"></div>
+&nbsp;<font color=#000000>Telegram-канал:</font></td></tr>
+<tr><td width=100% align=center valign=top>
+<font color=#00008f><a href="https://t.me/elibrary_ru_official" target=_blank>t.me/elibrary_ru_official</a></font></td></tr>
+
+<tr><td width=100% align=left valign=top>
+<div style="height: 2px;"></div>
+&nbsp;<font color=#000000>Размещение рекламы:</font></td></tr>
+<tr><td width=100% align=center valign=top>
+<font color=#00008f><a href="mailto:reklama@elibrary.ru">reklama@elibrary.ru</a></font></td></tr>
+
+</table>
+
+<div style="height: 10px;"></div>
+
+<table border=0 cellspacing=0 cellpadding=0 width=140>
+<tr class="menub"><td align=right width=30 valign=bottom><img src="/images/or_kv.gif" width=7 height=7 border=0 hspace=6 vspace=1 class="shadow"></td><td align=left width=110 valign=top><a href="/contact_new.asp">Схема проезда</a></td></tr>
+
+<tr class="menub"><td align=right width=30 valign=bottom><img src="/images/or_kv.gif" width=7 height=7 border=0 hspace=6 vspace=1 class="shadow"></td><td align=left width=110 valign=top><a href="https://support.elibrary.ru">Задать вопрос</a></td></tr>
+
+<tr class="menub"><td align=right width=30 valign=bottom><img src="/images/or_kv.gif" width=7 height=7 border=0 hspace=6 vspace=1 class="shadow"></td><td align=left width=110 valign=top><a href="/vacancy.asp">Вакансии</a></td></tr>
+
+</table>
+<div style="height: 4px;"></div>
+
+</div>
+</div>
+</td></tr>
+
+<tr><td><img src="/pic/1pix.gif" vspace=9></td></tr>
+<tr><td width=100% align=center valign=top>
+<div style="width: 140px;" class="help-panel">
+<table width=140 cellspacing=0 cellpadding=3 border=0>
+<tr><td width=15% align=right valign=top>
+<img src="/images/but_orange_i.gif" width=15 height=15 hspace=0 border=0></td>
+<td width=85% align=left valign=middle><font color=#00008f>По всем вопросам, связанным с работой в системе Science Index, обращайтесь, пожалуйста, в службу поддержки:<br><br>
++7 (495) 544-2494<br><a href="mailto:support@elibrary.ru">support@elibrary.ru</a></font>
+</td></tr>
+</table>
+</div>
+</td></tr>
+
+<tr><td><img src="/pic/1pix.gif" vspace=9></td></tr>
+
+
+</table>
+
+</td><td align=left valign=top>
+
+<FORM method=post name="results" onSubmit="return false">
+
+<table border=0 cellspacing=0 cellpadding=0>
+<tr><td width=600 align=left valign=top>
+
+<table width=580 border=0 cellspacing=0 cellpadding=0>
+<tr><td width=100% align=left valign=top>
+
+<div class="header-panel">
+<div style="margin: 0; border: 0; padding: 0 0 5px 0; text-align: center; font-size: 9pt;"><font color=#5674b9><b>СПИСОК ПУБЛИКАЦИЙ ОРГАНИЗАЦИИ</b></font></div>
+</div>
+
+</td></tr></table>
+
+</td><td width=200 align=right valign=middle id="rightcol">
+
+
+<table width=200 cellspacing=0 cellpadding=3 border=0>
+<tr><td width=12% align=right valign=top>
+<a href="https://t.me/elibrary_ru_official/49" target=_blank><img src="/images/telegram.svg" width=24 height=24 border=0></a></td>
+<td width=88% align=left valign=middle><font color=#00008f><a href="https://t.me/elibrary_ru_official/49" target=_blank>Опубликованы наукометрические показатели официально зарегистрированных кандидатов в члены РАН</a></font>
+</td></tr>
+</table>
+</td></tr>
+
+
+<tr><td align=left valign=top>
+
+<table width=580 border=0 cellspacing=0 cellpadding=0>
+
+<input type="hidden" name="itembox_name" value="">
+<input type="hidden" name="pagenum" value="32">
+<input type="hidden" name="add_all" value="">
+<input type="hidden" name="paysum" value="">
+<input type="hidden" name="orgsid" value="14346">
+<input type="hidden" name="show_refs" value="0">
+<input type="hidden" name="hide_doubles" value="1">
+<input type="hidden" name="items_all" value="">
+<input type="hidden" name="did" value="1">
+<input type="hidden" name="urlnum" value="1">
+
+<tr><td width=100% align=left valign=top>
+
+<div style="width:540px; margin:0 20px 20px 20px; border:0; padding:0; text-align: center; font-size: 9pt;">
+<font color=#F26C4F><b>УНИВЕРСИТЕТ ИННОПОЛИС</b></font>  <br><font color=#000000>Казань</font>
+</div>
+
+<div class="form-panel">
+
+<div style="margin:0; border:0; padding:0;">
+<font color=#F26C4F><b><span class="expandable" onClick="$('#show_param').slideToggle(500, function(){didScroll = true;})" title="Показать/скрыть параметры поиска">ПАРАМЕТРЫ</span></b></font>
+</div>
+
+<div id="show_param" class="expanded">
+
+
+<table width=520 cellspacing=3 cellpadding=0 border=0>
+<tr valign=top class="menus"><td width=514 align=left valign=top><font color=#00008f>&nbsp;&nbsp;Подразделение:</font></td></tr>
+<tr><td align=left valign=top><div class="formfr"><select id="orgdepid" name="orgdepid" style="width:510px" class="input" onKeyPress="submit_enter(event)">
+<option value="0" selected>
+
+<option value="41394" >Университет Иннополис
+<option value="66955" >&nbsp;&nbsp;&nbsp;Управление академической политики и организации образовательной деятельности
+<option value="67020" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Факультет компьютерных и инженерных наук
+<option value="67022" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Институт анализа данных и искусственного интеллекта
+<option value="67023" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Институт информационной безопасности
+<option value="67024" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Институт разработки ПО и программной инженерии
+<option value="67025" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Институт робототехники и компьютерного зрения
+<option value="67021" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Факультет гуманитарных и социальных наук
+<option value="67019" >&nbsp;&nbsp;&nbsp;Управление по проектной и научно-исследовательской деятельности
+</select></div></td></tr>
+</table>
+
+
+<div style="height:5px;"></div>
+<table width=520 cellspacing=3 cellpadding=0 border=0>
+<tr valign=middle class="menus"><td width=30 align=right valign=middle><div id="txt_rubrics" class="win_expandable" style="color:#F26C4F;">▼</div></td><td width=481 align=left valign=middle><font color=#00008f>&nbsp;&nbsp;<span class="expandable" id="hdr_rubrics">ТЕМАТИКА</span></font><span id="rubricsheader" name="rubricsheader" style="color: #777777; padding: 10px;"></span></td></tr></table>
+
+<div id="rubrics" class="collapsed1" style="display: none; border:0; padding:0; margin:5px 0 0 0;">
+<table width=517 cellspacing=0 cellpadding=0 border=0 bgcolor=#5674b9>
+<tr><td width=107 align=right valign=middle><font color=#ffffff>Сортировка:</font>&nbsp;&nbsp;</td><td width=170 align=left valign=middle><select name="rubric_order" style="width:168px;" class="input" id="rubric_order">
+<option value="0" selected>по числу публикаций
+<option value="1" >по названию рубрики
+<option value="2" >выделенные в начале
+</select></td><td width=110 align=right valign=middle class="menus"><a href='javascript:select_options("rubric")'>Выделить все</a></td><td width=130 align=center valign=middle class="menus"><a href='javascript:deselect_options("rubric")'>Снять выделение</a></td></tr>
+</table>
+<div id="rubrics_options" style="height:50px; padding:0px; overflow:auto; width:517px; background:#f5f5f5; margin:10px 0 10px 0;">
+</div></div>
+
+<table width=520 cellspacing=3 cellpadding=0 border=0>
+<tr valign=middle class="menus"><td width=30 align=right valign=middle><div id="txt_titles" class="win_expandable" style="color:#F26C4F;">▼</div></td><td width=481 align=left valign=middle><font color=#00008f>&nbsp;&nbsp;<span class="expandable" id="hdr_titles">ЖУРНАЛЫ</span></font><span id="titlesheader" name="titlesheader" style="color: #777777; padding: 10px;"></span></td></tr></table>
+
+<div id="titles" class="collapsed1" style="display: none; border:0; padding:0; margin:5px 0 0 0;">
+<table width=517 cellspacing=0 cellpadding=0 border=0 bgcolor=#5674b9>
+<tr><td width=107 align=right valign=middle><font color=#ffffff>Сортировка:</font>&nbsp;&nbsp;</td><td width=170 align=left valign=middle><select name="title_order" style="width:168px" class="input" id="title_order">
+<option value="0" selected>по числу публикаций
+<option value="1" >по названию журнала
+<option value="2" >выделенные в начале
+</select></td><td width=110 align=right valign=middle class="menus"><a href='javascript:select_options("title")'>Выделить все</a></td><td width=130 align=center valign=middle class="menus"><a href='javascript:deselect_options("title")'>Снять выделение</a></td></tr>
+</table>
+<div id="titles_options" style="height:50px; padding:0px; overflow:auto; width:517px; background:#f5f5f5; margin:10px 0 10px 0;">
+</div></div>
+
+<table width=520 cellspacing=3 cellpadding=0 border=0>
+<tr valign=middle class="menus"><td width=30 align=right valign=middle><div id="txt_orgs" class="win_expandable" style="color:#F26C4F;">▼</div></td><td width=481 align=left valign=middle><font color=#00008f>&nbsp;&nbsp;<span class="expandable" id="hdr_orgs">ОРГАНИЗАЦИИ</span></font><span id="orgsheader" name="orgsheader" style="color: #777777; padding: 10px;"></span></td></tr></table>
+
+<div id="orgs" class="collapsed1" style="display: none; border:0; padding:0; margin:5px 0 0 0;">
+<table width=517 cellspacing=0 cellpadding=0 border=0 bgcolor=#5674b9>
+<tr><td width=107 align=right valign=middle><font color=#ffffff>Сортировка:</font>&nbsp;&nbsp;</td><td width=170 align=left valign=middle><select name="org_order" style="width:168px" class="input" id="org_order">
+<option value="0" selected>по числу публикаций
+<option value="1" >по названию организации
+<option value="2" >выделенные в начале
+</select></td><td width=110 align=right valign=middle class="menus"><a href='javascript:select_options("org")'>Выделить все</a></td><td width=130 align=center valign=middle class="menus"><a href='javascript:deselect_options("org")'>Снять выделение</a></td></tr>
+</table>
+<div id="orgs_options" style="height:50px; padding:0px; overflow:auto; width:517px; background:#f5f5f5; margin:10px 0 10px 0;">
+</div></div>
+
+<table width=520 cellspacing=3 cellpadding=0 border=0>
+<tr valign=middle class="menus"><td width=30 align=right valign=middle><div id="txt_authors" class="win_expandable" style="color:#F26C4F;">▼</div></td><td width=481 align=left valign=middle><font color=#00008f>&nbsp;&nbsp;<span class="expandable" id="hdr_authors">АВТОРЫ</span></font><span id="authorsheader" name="authorsheader" style="color: #777777; padding: 10px;"></span></td></tr></table>
+
+<div id="authors" class="collapsed1" style="display: none; border:0; padding:0; margin:5px 0 0 0;">
+<table width=517 cellspacing=0 cellpadding=0 border=0 bgcolor=#5674b9>
+<tr><td width=107 align=right valign=middle><font color=#ffffff>Сортировка:</font>&nbsp;&nbsp;</td><td width=170 align=left valign=middle><select name="author_order" style="width:168px" class="input" id="author_order">
+<option value="0" selected>по числу публикаций
+<option value="1" >по фамилии
+<option value="2" >выделенные в начале
+</select></td><td width=110 align=right valign=middle class="menus"><a href='javascript:select_options("author")'>Выделить все</a></td><td width=130 align=center valign=middle class="menus"><a href='javascript:deselect_options("author")'>Снять выделение</a></td></tr>
+</table>
+<div id="authors_options" style="height:50px; padding:0px; overflow:auto; width:517px; background:#f5f5f5; margin:10px 0 10px 0;">
+</div></div>
+
+<table width=520 cellspacing=3 cellpadding=0 border=0>
+<tr valign=middle class="menus"><td width=30 align=right valign=middle><div id="txt_years" class="win_expandable" style="color:#F26C4F;">▼</div></td><td width=481 align=left valign=middle><font color=#00008f>&nbsp;&nbsp;<span class="expandable" id="hdr_years">ГОДЫ</span></font><span id="yearsheader" name="yearsheader" style="color: #777777; padding: 10px;"></span></td></tr></table>
+
+<div id="years" class="collapsed1" style="display: none; border:0; padding:0; margin:5px 0 0 0;">
+<table width=517 cellspacing=0 cellpadding=0 border=0 bgcolor=#5674b9>
+<tr><td width=107 align=right valign=middle><font color=#ffffff>Сортировка:</font>&nbsp;&nbsp;</td><td width=170 align=left valign=middle><select name="year_order" style="width:168px" class="input" id="year_order">
+<option value="0" >по числу публикаций
+<option value="1" selected>по году
+<option value="2" >выделенные в начале
+</select></td><td width=110 align=right valign=middle class="menus"><a href='javascript:select_options("year")'>Выделить все</a></td><td width=130 align=center valign=middle class="menus"><a href='javascript:deselect_options("year")'>Снять выделение</a></td></tr>
+</table>
+<div id="years_options" style="height:50px; padding:0px; overflow:auto; width:517px; background:#f5f5f5; margin:10px 0 10px 0;">
+</div></div>
+
+<table width=520 cellspacing=3 cellpadding=0 border=0>
+<tr valign=middle class="menus"><td width=30 align=right valign=middle><div id="txt_types" class="win_expandable" style="color:#F26C4F;">▼</div></td><td width=481 align=left valign=middle><font color=#00008f>&nbsp;&nbsp;<span class="expandable" id="hdr_types">ТИП ПУБЛИКАЦИИ</span></font><span id="typesheader" name="typesheader" style="color: #777777; padding: 10px;"></span></td></tr></table>
+
+<div id="types" class="collapsed1" style="display: none; border:0; padding:0; margin:5px 0 0 0;">
+<table width=517 cellspacing=0 cellpadding=0 border=0 bgcolor=#5674b9>
+<tr><td width=107 align=right valign=middle><font color=#ffffff>Сортировка:</font>&nbsp;&nbsp;</td><td width=170 align=left valign=middle><select name="type_order" style="width:168px" class="input" id="type_order">
+<option value="0" selected>по числу публикаций
+<option value="1" >по типу публикации
+<option value="2" >выделенные в начале
+</select></td><td width=110 align=right valign=middle class="menus"><a href='javascript:select_options("type")'>Выделить все</a></td><td width=130 align=center valign=middle class="menus"><a href='javascript:deselect_options("type")'>Снять выделение</a></td></tr>
+</table>
+<div id="types_options" style="height:50px; padding:0px; overflow:auto; width:517px; background:#f5f5f5; margin:10px 0 10px 0;">
+</div></div>
+
+<table width=520 cellspacing=3 cellpadding=0 border=0>
+<tr valign=middle class="menus"><td width=30 align=right valign=middle><div id="txt_roles" class="win_expandable" style="color:#F26C4F;">▼</div></td><td width=481 align=left valign=middle><font color=#00008f>&nbsp;&nbsp;<span class="expandable" id="hdr_roles">УЧАСТИЕ СОТРУДНИКА В ПУБЛИКАЦИИ</span></font><span id="rolesheader" name="rolesheader" style="color: #777777; padding: 10px;"></span></td></tr></table>
+
+<div id="roles" class="collapsed1" style="display: none; border:0; padding:0; margin:5px 0 0 0;">
+<table width=517 cellspacing=0 cellpadding=0 border=0 bgcolor=#5674b9>
+<tr><td width=107 align=right valign=middle><font color=#ffffff>Сортировка:</font>&nbsp;&nbsp;</td><td width=170 align=left valign=middle><select name="role_order" style="width:168px" class="input" id="role_order">
+<option value="0" selected>по числу публикаций
+<option value="1" >по способу участия
+<option value="2" >выделенные в начале
+</select></td><td width=110 align=right valign=middle class="menus"><a href='javascript:select_options("role")'>Выделить все</a></td><td width=130 align=center valign=middle class="menus"><a href='javascript:deselect_options("role")'>Снять выделение</a></td></tr>
+</table>
+<div id="roles_options" style="height:50px; padding:0px; overflow:auto; width:517px; background:#f5f5f5; margin:10px 0 10px 0;">
+</div></div>
+
+<table width=520 cellspacing=3 cellpadding=0 border=0>
+<tr valign=middle class="menus"><td width=30 align=right valign=middle><div id="txt_orgroles" class="win_expandable" style="color:#F26C4F;">▼</div></td><td width=481 align=left valign=middle><font color=#00008f>&nbsp;&nbsp;<span class="expandable" id="hdr_orgroles">УЧАСТИЕ ОРГАНИЗАЦИИ В ПУБЛИКАЦИИ</span></font><span id="orgrolesheader" name="orgrolesheader" style="color: #777777; padding: 10px;"></span></td></tr></table>
+
+<div id="orgroles" class="collapsed1" style="display: none; border:0; padding:0; margin:5px 0 0 0;">
+<table width=517 cellspacing=0 cellpadding=0 border=0 bgcolor=#5674b9>
+<tr><td width=107 align=right valign=middle><font color=#ffffff>Сортировка:</font>&nbsp;&nbsp;</td><td width=170 align=left valign=middle><select name="orgrole_order" style="width:168px" class="input" id="orgrole_order">
+<option value="0" selected>по числу публикаций
+<option value="1" >по способу участия
+<option value="2" >выделенные в начале
+</select></td><td width=110 align=right valign=middle class="menus"><a href='javascript:select_options("orgrole")'>Выделить все</a></td><td width=130 align=center valign=middle class="menus"><a href='javascript:deselect_options("orgrole")'>Снять выделение</a></td></tr>
+</table>
+<div id="orgroles_options" style="height:50px; padding:0px; overflow:auto; width:517px; background:#f5f5f5; margin:10px 0 10px 0;">
+</div></div>
+
+
+<div style="height:5px;">&nbsp;</div>
+<table width=520 cellspacing=3 cellpadding=0 border=0>
+<tr valign=top class="menus"><td width=514 align=left valign=top><font color=#00008f>&nbsp;&nbsp;Выбрать:</font></td></tr>
+<tr><td align=left valign=top>
+<div class="formfr"><select id="show_option" name="show_option" style="width:510px" class="input" onKeyPress="submit_enter(event)">
+<option value="1" >все публикации организации на портале elibrary.ru
+<option value="0" selected>публикации организации, включенные в РИНЦ
+<option value="2" >публикации организации, входящие в ядро РИНЦ
+<option value="3" >статьи в журналах, входящих в Russian Science Citation Index
+<option value="24" >статьи в журналах, входящих в Directory of Open Access Journals
+
+<option value="4" >статьи в журналах, входящих в Web of Science или Scopus
+
+<option value="9" >статьи в журналах, входящих в Web of Science
+<option value="16" >статьи в журналах, входящих в Web of Science (квартиль 1)
+<option value="13" >статьи в журналах, входящих в Web of Science (квартиль 2)
+<option value="14" >статьи в журналах, входящих в Web of Science (квартиль 3)
+<option value="15" >статьи в журналах, входящих в Web of Science (квартиль 4)
+
+<option value="10" >статьи в журналах, входящих в Scopus
+<option value="17" >статьи в журналах, входящих в Scopus (квартиль 1)
+<option value="18" >статьи в журналах, входящих в Scopus (квартиль 2)
+<option value="19" >статьи в журналах, входящих в Scopus (квартиль 3)
+<option value="20" >статьи в журналах, входящих в Scopus (квартиль 4)
+
+<option value="26" >статьи в журналах, включенных в Белый список
+<option value="27" >статьи в журналах, включенных в Белый список (уровень 1)
+<option value="28" >статьи в журналах, включенных в Белый список (уровень 2)
+<option value="29" >статьи в журналах, включенных в Белый список (уровень 3)
+<option value="30" >статьи в журналах, включенных в Белый список (уровень 4)
+
+<option value="5" >статьи в российских журналах, включенных в перечень ВАК
+<option value="21" >статьи в российских журналах, включенных в перечень ВАК (категория 1)
+<option value="22" >статьи в российских журналах, включенных в перечень ВАК (категория 2)
+<option value="23" >статьи в российских журналах, включенных в перечень ВАК (категория 3)
+
+<option value="6" >статьи в журналах с импакт-фактором РИНЦ >0.02
+<option value="7" >статьи в журналах с импакт-фактором РИНЦ >0.1
+<option value="8" >статьи в журналах с импакт-фактором РИНЦ >0.3
+<option value="11" >публикации, имеющие DOI
+<option value="12" >публикации, имеющие ISBN
+</select></div></td></tr>
+</table>
+
+<div style="height:5px;">&nbsp;</div>
+<table width=520 cellspacing=3 cellpadding=0 border=0>
+<tr valign=top class="menus"><td width=514 align=left valign=top><font color=#00008f>&nbsp;&nbsp;Показывать:</font></td></tr>
+<tr><td align=left valign=top>
+<div class="formfr"><select id="show_sotr" name="show_sotr" style="width:510px" class="input" onKeyPress="submit_enter(event)">
+<option value="0" selected>все публикации, в которых явно указана данная организация
+<option value="1" >публикации сотрудников в период их работы в организации
+<option value="2" >все публикации нынешних сотрудников организации
+</select></div></td></tr>
+</table>
+
+<table width=520 cellspacing=3 cellpadding=0 border=0>
+<tr><td align=right width=24><input type=checkbox name="check_show_refs" id="check_show_refs"  onClick='if (this.checked) {document.forms["results"].show_refs.value="1";} else {document.forms["results"].show_refs.value="0";}'></td><td align=left width=484>- учитывать публикации, извлеченные из списков цитируемой литературы&nbsp;<img src="/images/but_orange_question.gif" class="imghelp help" title='<p>Показываются не только публикации, имеющие полное библиографическое описание в РИНЦ, но и публикации, извлеченные из списков цитируемой литературы. Это позволяет учесть публикации, отсутствующие в РИНЦ, но при этом хорошо цитируемые в современной научной литературе</p>'></td></tr>
+<tr><td align=right width=24><input type=checkbox name="check_hide_doubles" id="check_hide_doubles" checked onClick='if (this.checked) {document.forms["results"].hide_doubles.value="1";} else {document.forms["results"].hide_doubles.value="0";}'></td><td align=left width=484>- объединять оригинальные и переводные версии статей и переиздания книг&nbsp;<img src="/images/but_orange_question.gif" class="imghelp help" title='<p>В этом режиме разные версии одной и той же публикации (например, ее оригинальная и переводная версии, или повторные издания одной и той же монографии) объединяются в группу и при расчетах всех показателей учитываются как одна публикация. В том числе ссылки, сделанные из таких публикаций, засчитываются как одна ссылка</p>'></td></tr>
+</table>
+
+<div style="height:5px;"></div>
+<table width=520 cellspacing=3 cellpadding=0 border=0>
+<tr valign=top class="menus"><td width=170 align=left valign=top><font color=#00008f>&nbsp;&nbsp;Сортировка:</font></td><td width=15></td><td width=139 align=left valign=top><font color=#00008f>&nbsp;&nbsp;Порядок:</font></td><td width=15></td><td width=80></td><td width=80></td></tr>
+<tr align=left valign=top>
+<td><div class="formfr"><select id="sortorder" name="sortorder" style="width:166px" class="input" onChange='var ord = document.forms["results"].order; switch(this.value) {case "0" : ord.value="1"; break; case "1" : ord.value="0"; break; case "2" : ord.value="1"; break; case "3" : ord.value="1"; break; case "4" : ord.value="1"; break; case "5" : ord.value="0"; break; }' onKeyPress="submit_enter(event)">
+<option value="0" selected>по дате выпуска
+<option value="1" >по названию публикации
+<option value="2" >по году и первому автору
+<option value="5" >по первому автору
+<option value="3" >по числу цитирований
+<option value="4" >по дате размещения
+</select></div></td>
+<td></td>
+<td><div class="formfr"><select id="order" name="order" style="width:135px" class="input" onKeyPress="submit_enter(event)">
+<option value="0" >по возрастанию
+<option value="1" selected>по убыванию
+</select></div></td>
+<td></td>
+<td align=left valign=middle>
+<div class="butblue" style="width: 67px;" onClick="reset_form()">Очистить</div>
+</td>
+<td align=right valign=middle>
+<div class="butred" style="width: 67px;" onClick="pub_search()">Поиск</div>
+</td>
+</tr>
+</table>
+
+<div style="height:8px;"></div>
+</div>
+</div>
+
+
+
+<div style="width: 480px; margin: 10px 0 10px 30px; border: 0; padding: 10px 20px 7px 20px; text-align: center;" >
+<table width=480 cellspacing=3 cellpadding=0 border=0>
+<tr><td width=40 align=right valign=top><img src="images/but_orange_i.gif" width=15 height=15 hspace=10 border=0></td><td width=431 align=left valign=top class="redref"><font color=#00008f>Всего найдено</font> <b><font color=#ff0000>3306</font></b> <font color=#00008f>публикаций с общим количеством цитирований: </font><b><font color=#ff0000>16077</font></b><font color=#00008f>.<br>Показано на данной странице: с <b>3101</b> по <b>3200</b>.</font></td></tr></table>
+</div>
+
+<table width=580 cellspacing=0 cellpadding=3 id="restab" style="border-spacing: 0px 4px; table-layout: fixed;">
+<tr align=center valign=middle height=15>
+<td width=24><font color=#555555>&nbsp;<b>№</b></font></td>
+<td width=514><font color=#555555><b>Публикация</b></font></td>
+<td width=24><span title="Число цитирований публикации в РИНЦ"><font color=#555555><b>Цит.</b></font></span></td></tr>
+<tr><td colspan=3>
+<div style="width: 574px;" class="table-line"></div>
+</td></tr>
+
+<tr><td colspan=3 height=0></td></tr>
+
+
+
+<tr valign=middle id="arw31063726">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3101.</b></font><br><input type=checkbox name="tid31063726" id="tid31063726"  onClick='if (this.checked) {RowSelect("arw31063726",1)} else {RowSelect("arw31063726",0)}'><div id="pdf_31063726" name="pdf_31063726"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=31063726"><b><span style="line-height:1.0;">WHAT DO SOFTWARE ENGINEERS CARE ABOUT? GAPS BETWEEN RESEARCH AND PRACTICE</span></b></a><br><font color=#00008f><i>Ivanov V., Rogers A., Succi G., Yi J., Zorin V.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Proceedings of the ACM SIGSOFT Symposium on the Foundations of Software Engineering.&nbsp;11. Сер. "ESEC/FSE 2017 - Proceedings of the 2017 11th Joint Meeting on Foundations of Software Engineering" 2017.  С. 890-895.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+27</td></tr>
+
+
+
+
+<tr valign=middle id="arw35483714">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3102.</b></font><br><input type=checkbox name="tid35483714" id="tid35483714"  onClick='if (this.checked) {RowSelect("arw35483714",1)} else {RowSelect("arw35483714",0)}'><div id="pdf_35483714" name="pdf_35483714"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=35483714"><b><span style="line-height:1.0;">PERSONALIZED LEARNING PATHWAYS USING SEMANTIC WEB RULES</span></b></a><br><font color=#00008f><i>Iatrellis O., Fitsilis P., Kameas A.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: ACM International Conference Proceeding Series.&nbsp;21. Сер. "Proceedings - 21st Pan-Hellenic Conference on Informatics, PCI 2017" 2017.  С. 3139404.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+3</td></tr>
+
+
+
+
+<tr valign=middle id="arw35514047">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3103.</b></font><br><input type=checkbox name="tid35514047" id="tid35514047"  onClick='if (this.checked) {RowSelect("arw35514047",1)} else {RowSelect("arw35514047",0)}'><div id="pdf_35514047" name="pdf_35514047"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=35514047"><b><span style="line-height:1.0;">TEACHING SOFTWARE PROJECT MANAGEMENT USING AGILE PARADIGM</span></b></a><br><font color=#00008f><i>Fitsilis P., Lekatos A.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: ACM International Conference Proceeding Series.&nbsp;21. Сер. "Proceedings - 21st Pan-Hellenic Conference on Informatics, PCI 2017" 2017.  С. 3139413.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+3</td></tr>
+
+
+
+
+<tr valign=middle id="arw29465388">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3104.</b></font><br><input type=checkbox name="tid29465388" id="tid29465388"  onClick='if (this.checked) {RowSelect("arw29465388",1)} else {RowSelect("arw29465388",0)}'><div id="pdf_29465388" name="pdf_29465388"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29465388"><b><span style="line-height:1.0;">SERIAL VS. QUASI-SERIAL MANIPULATORS: COMPARISON ANALYSIS OF ELASTO-STATIC BEHAVIORS</span></b></a><br><font color=#00008f><i>Klimchik A., Pashkevich A.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34415545">Mechanism and Machine Theory</a>. 
+2017. Т. 107.  С. 46-70.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+32</td></tr>
+
+
+
+
+<tr valign=middle id="arw29466329">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3105.</b></font><br><input type=checkbox name="tid29466329" id="tid29466329"  onClick='if (this.checked) {RowSelect("arw29466329",1)} else {RowSelect("arw29466329",0)}'><div id="pdf_29466329" name="pdf_29466329"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29466329"><b><span style="line-height:1.0;">ON THE VERIFICATION OF SCOOP PROGRAMS</span></b></a><br><font color=#00008f><i>Caltais G., Meyer B.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34489374">Science of Computer Programming</a>. 
+2017. Т. 133.  С. 194-215.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+2</td></tr>
+
+
+
+
+<tr valign=middle id="arw29464973">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3106.</b></font><br><input type=checkbox name="tid29464973" id="tid29464973"  onClick='if (this.checked) {RowSelect("arw29464973",1)} else {RowSelect("arw29464973",0)}'><div id="pdf_29464973" name="pdf_29464973"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29464973"><b><span style="line-height:1.0;">A NEW PRIVACY AWARE PAYMENT SCHEME FOR WIRELESS CHARGING OF ELECTRIC VEHICLES</span></b></a><br><font color=#00008f><i>Rezaeifar Z., Oh H., Hussain R., Kim S.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34489085">Wireless Personal Communications</a>. 
+2017. Т. 92. <a href="/contents.asp?id=34489085&selid=29464973">№&nbsp;3</a>.  С. 1011-1028.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+6</td></tr>
+
+
+
+
+<tr valign=middle id="arw29465268">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3107.</b></font><br><input type=checkbox name="tid29465268" id="tid29465268"  onClick='if (this.checked) {RowSelect("arw29465268",1)} else {RowSelect("arw29465268",0)}'><div id="pdf_29465268" name="pdf_29465268"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29465268"><b><span style="line-height:1.0;">SET-BASED UNIFIED APPROACH FOR SUMMARIZATION OF A MULTI-ATTRIBUTED GRAPH</span></b></a><br><font color=#00008f><i>Khan K.U., Nawaz W., Lee Y.-K.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34489156">World Wide Web</a>. 
+2017. Т. 20. <a href="/contents.asp?id=34489156&selid=29465268">№&nbsp;3</a>.  С. 543-570.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+7</td></tr>
+
+
+
+
+<tr valign=middle id="arw31000102">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3108.</b></font><br><input type=checkbox name="tid31000102" id="tid31000102"  onClick='if (this.checked) {RowSelect("arw31000102",1)} else {RowSelect("arw31000102",0)}'><div id="pdf_31000102" name="pdf_31000102"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=31000102"><b><span style="line-height:1.0;">PB-MII: REPLACING STATIC RSUS WITH PUBLIC BUSES-BASED MOBILE INTERMEDIARY INFRASTRUCTURE IN URBAN VANET-BASED CLOUDS</span></b></a><br><font color=#00008f><i>Hussain R., Rezaeifar Z., Oh H., Kim S., Son J., Bhuiyan M.Z.A.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34579860">Cluster Computing</a>. 
+2017. Т. 20. <a href="/contents.asp?id=34579860&selid=31000102">№&nbsp;3</a>.  С. 2231-2252.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+6</td></tr>
+
+
+
+
+<tr valign=middle id="arw29446534">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3109.</b></font><br><input type=checkbox name="tid29446534" id="tid29446534"  onClick='if (this.checked) {RowSelect("arw29446534",1)} else {RowSelect("arw29446534",0)}'><div id="pdf_29446534" name="pdf_29446534"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29446534"><b><span style="line-height:1.0;">CODE GENERATION FOR EVENT-B</span></b></a><br><font color=#00008f><i>Rivera V., Cataño N., Rueda C., Wahls T.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34487991">International Journal on Software Tools for Technology Transfer (STTT)</a>. 
+2017. Т. 19. <a href="/contents.asp?id=34487991&selid=29446534">№&nbsp;1</a>.  С. 31-52.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+27</td></tr>
+
+
+
+
+<tr valign=middle id="arw29524118">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3110.</b></font><br><input type=checkbox name="tid29524118" id="tid29524118"  onClick='if (this.checked) {RowSelect("arw29524118",1)} else {RowSelect("arw29524118",0)}'><div id="pdf_29524118" name="pdf_29524118"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29524118"><b><span style="line-height:1.0;">RELIEF CAMP MANAGER: A SERIOUS GAME USING THE WORLD HEALTH ORGANIZATION’S RELIEF CAMP GUIDELINES</span></b></a><br><font color=#00008f><i>Aslam H., Sidorov A., Bogomazov N., Berezyuk F., Brown J.A.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34499649">Lecture Notes in Computer Science</a>. 
+2017. Т. 10199 LNCS.  С. 407-417.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+4</td></tr>
+
+
+
+
+<tr valign=middle id="arw31100355">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3111.</b></font><br><input type=checkbox name="tid31100355" id="tid31100355"  onClick='if (this.checked) {RowSelect("arw31100355",1)} else {RowSelect("arw31100355",0)}'><div id="pdf_31100355" name="pdf_31100355"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=31100355"><b><span style="line-height:1.0;">LINK PREDICTION USING TOP-K SHORTEST DISTANCES</span></b></a><br><font color=#00008f><i>Lebedev A., Lee J.Y., Rivera V., Mazzara M.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34598087">Lecture Notes in Computer Science</a>. 
+2017. Т. 10365 LNCS.  С. 101-105.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+11</td></tr>
+
+
+
+
+<tr valign=middle id="arw31051753">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3112.</b></font><br><input type=checkbox name="tid31051753" id="tid31051753"  onClick='if (this.checked) {RowSelect("arw31051753",1)} else {RowSelect("arw31051753",0)}'><div id="pdf_31051753" name="pdf_31051753"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=31051753"><b><span style="line-height:1.0;">COMPARATIVE RESEARCH FOR SOCIAL RECOMMENDATIONS ON VK</span></b></a><br><font color=#00008f><i>Tukhvatov R., Lee J.Y.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34589309">Lecture Notes in Computer Science</a>. 
+2017. Т. 10612 LNCS.  С. 257-266.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw31038008">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3113.</b></font><br><input type=checkbox name="tid31038008" id="tid31038008"  onClick='if (this.checked) {RowSelect("arw31038008",1)} else {RowSelect("arw31038008",0)}'><div id="pdf_31038008" name="pdf_31038008"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=31038008"><b><span style="line-height:1.0;">SEAMLESS REQUIREMENTS</span></b></a><br><font color=#00008f><i>Naumchev A., Meyer B.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34586685">Computer Languages, Systems & Structures</a>. 
+2017. Т. 49.  С. 119-132.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+10</td></tr>
+
+
+
+
+<tr valign=middle id="arw29474490">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3114.</b></font><br><input type=checkbox name="tid29474490" id="tid29474490"  onClick='if (this.checked) {RowSelect("arw29474490",1)} else {RowSelect("arw29474490",0)}'><div id="pdf_29474490" name="pdf_29474490"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29474490"><b><span style="line-height:1.0;">UNEMPLOYMENT AND OUTPUT DYNAMICS IN CIS COUNTRIES: OKUN'S LAW REVISITED</span></b></a><br><font color=#00008f><i>Ibragimov M., Ibragimov R.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34490430">Applied Economics</a>. 
+2017. Т. 49. <a href="/contents.asp?id=34490430&selid=29474490">№&nbsp;34</a>.  С. 3453-3479.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+18</td></tr>
+
+
+
+
+<tr valign=middle id="arw41774135">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3115.</b></font><br><input type=checkbox name="tid41774135" id="tid41774135"  onClick='if (this.checked) {RowSelect("arw41774135",1)} else {RowSelect("arw41774135",0)}'><div id="pdf_41774135" name="pdf_41774135"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=41774135"><b><span style="line-height:1.0;">ENDING NULL POINTER CRASHES</span></b></a><br><font color=#00008f><i>Meyer B.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34493575">Association for Computing Machinery. Communications of the ACM</a>. 
+2017. Т. 60. <a href="/contents.asp?id=34493575&selid=41774135">№&nbsp;5</a>.  С. 8-9.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+6</td></tr>
+
+
+
+
+<tr valign=middle id="arw28103133">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3116.</b></font><br><input type=checkbox name="tid28103133" id="tid28103133"  onClick='if (this.checked) {RowSelect("arw28103133",1)} else {RowSelect("arw28103133",0)}'><div id="pdf_28103133" name="pdf_28103133"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=28103133"><b><span style="line-height:1.0;">ОПЫТ ИСПОЛЬЗОВАНИЯ СИСТЕМЫ УПРАВЛЕНИЯ ОБУЧЕНИЕМ (LMS) И АВТОМАТИЗИРОВАННЫХ СИСТЕМ ТЕСТИРОВАНИЯ В ПРЕПОДАВАНИИ ДИСЦИПЛИН С МОДУЛЬНО-РЕЙТИНГОВОЙ СТРУКТУРОЙ КУРСА</span></b></a><br><font color=#00008f><i>Протасов С.И.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34398742">Образовательные технологии и общество</a>. 
+2017. Т. 20. <a href="/contents.asp?id=34398742&selid=28103133">№&nbsp;1</a>.  С. 410-416.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+3</td></tr>
+
+
+
+
+<tr valign=middle id="arw30006975">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3117.</b></font><br><input type=checkbox name="tid30006975" id="tid30006975"  onClick='if (this.checked) {RowSelect("arw30006975",1)} else {RowSelect("arw30006975",0)}'><div id="pdf_30006975" name="pdf_30006975"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=30006975"><b><span style="line-height:1.0;">СЕМАНТИЧЕСКИЙ ИНТЕРФЕЙС ДЛЯ ПРОГРАММ НА С++</span></b></a><br><font color=#00008f><i>Зуев Е.А.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34535133">Известия высших учебных заведений. Северо-Кавказский регион. Технические науки</a>. 
+2017. <a href="/contents.asp?id=34535133&selid=30006975">№&nbsp;3&nbsp;(195)</a>.  С. 35-42.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw29966413">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3118.</b></font><br><input type=checkbox name="tid29966413" id="tid29966413"  onClick='if (this.checked) {RowSelect("arw29966413",1)} else {RowSelect("arw29966413",0)}'><div id="pdf_29966413" name="pdf_29966413"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29966413"><b><span style="line-height:1.0;">О ПРОЕКТИВНО ИНВАРИАНТНЫХ ТОЧКАХ ОВАЛА С ВЫДЕЛЕННОЙ ВНЕШНЕЙ ПРЯМОЙ</span></b></a><br><font color=#00008f><i>Балицкий А.М., Савчик А.В., Гафаров Р.Ф., Коноваленко И.А.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34533895">Проблемы передачи информации</a>. 
+2017. Т. 53. <a href="/contents.asp?id=34533895&selid=29966413">№&nbsp;3</a>.  С. 84-89.
+</span>
+<div style="height: 5px;">&nbsp;</div>
+<table width=100% border=0 cellspacing=0 cellpadding=0>
+<td width=10% align=left valign=top bgcolor=#f5f5f5><font color=#000000>Версии:</font></td>
+<td width=90% align=left valign=top bgcolor=#f5f5f5>
+
+<span class="menug">
+<a href="item.asp?id=31081231">
+<span style="line-height:1.0;">ON PROJECTIVELY INVARIANT POINTS OF AN OVAL WITH A DISTINGUISHED EXTERIOR LINE</span><br><i>Balitskii A.M., Savchik A.V., Konovalenko I.A., Gafarov R.F.</i><br>Problems of Information Transmission. 2017. Т. 53. №&nbsp;3.  С. 279-283.
+</a></span>
+<br><div style="height: 5px;">&nbsp;</div>
+
+</td></tr></table>
+
+</td><td align=center valign=middle class="select-tr-right">
+13</td></tr>
+
+
+
+
+<tr valign=middle id="arw29491191">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3119.</b></font><br><input type=checkbox name="tid29491191" id="tid29491191"  onClick='if (this.checked) {RowSelect("arw29491191",1)} else {RowSelect("arw29491191",0)}'><div id="pdf_29491191" name="pdf_29491191"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29491191"><b><span style="line-height:1.0;">METRIC SIMILARITY REGULARIZER TO ENHANCE PIXEL SIMILARITY PERFORMANCE FOR HYPERSPECTRAL UNMIXING</span></b></a><br><font color=#00008f><i>Ahmad M., Khan A.M., Bashir A.K.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34493437">Optik - International Journal for Light and Electron Optics</a>. 
+2017. Т. 140.  С. 86-95.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+20</td></tr>
+
+
+
+
+<tr valign=middle id="arw29479102">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3120.</b></font><br><input type=checkbox name="tid29479102" id="tid29479102"  onClick='if (this.checked) {RowSelect("arw29479102",1)} else {RowSelect("arw29479102",0)}'><div id="pdf_29479102" name="pdf_29479102"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29479102"><b><span style="line-height:1.0;">SANCTIONS AND THE RUSSIAN STOCK MARKET</span></b></a><br><font color=#00008f><i>Ankudinov A., Lebedev O., Ibragimov R.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34491287">Research in International Business and Finance</a>. 
+2017. Т. 40.  С. 150-162.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+45</td></tr>
+
+
+
+
+<tr valign=middle id="arw31080558">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3121.</b></font><br><input type=checkbox name="tid31080558" id="tid31080558"  onClick='if (this.checked) {RowSelect("arw31080558",1)} else {RowSelect("arw31080558",0)}'><div id="pdf_31080558" name="pdf_31080558"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=31080558"><b><span style="line-height:1.0;">HEAVY TAILS AND ASYMMETRY OF RETURNS IN THE RUSSIAN STOCK MARKET</span></b></a><br><font color=#00008f><i>Ankudinov A., Lebedev O., Ibragimov R.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34594822">Emerging Markets Review</a>. 
+2017. Т. 32.  С. 200-219.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+14</td></tr>
+
+
+
+
+<tr valign=middle id="arw31037182">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3122.</b></font><br><input type=checkbox name="tid31037182" id="tid31037182"  onClick='if (this.checked) {RowSelect("arw31037182",1)} else {RowSelect("arw31037182",0)}'><div id="pdf_31037182" name="pdf_31037182"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=31037182"><b><span style="line-height:1.0;">A NEW OUTSOURCING CONDITIONAL PROXY RE-ENCRYPTION SUITABLE FOR MOBILE CLOUD ENVIRONMENT</span></b></a><br><font color=#00008f><i>Son J., Kim D., Bhuiyan M.Z.A., Hussain R., Oh H.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34586448">Concurrency Computation Practice and Experience</a>. 
+2017. Т. 29. <a href="/contents.asp?id=34586448&selid=31037182">№&nbsp;14</a>.  С. e3946.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+6</td></tr>
+
+
+
+
+<tr valign=middle id="arw31046043">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3123.</b></font><br><input type=checkbox name="tid31046043" id="tid31046043"  onClick='if (this.checked) {RowSelect("arw31046043",1)} else {RowSelect("arw31046043",0)}'><div id="pdf_31046043" name="pdf_31046043"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=31046043"><b><span style="line-height:1.0;">A NEW COMPREHENSIVE RSU INSTALLATION STRATEGY FOR COST-EFFICIENT VANET DEPLOYMENT</span></b></a><br><font color=#00008f><i>Kim D., Velasco Y., Uma R.N., Wang W., Hussain R., Lee S.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34588247">IEEE Transactions on Vehicular Technology</a>. 
+2017. Т. 66. <a href="/contents.asp?id=34588247&selid=31046043">№&nbsp;5</a>.  С. 4200-4211.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+101</td></tr>
+
+
+
+
+<tr valign=middle id="arw31028663">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3124.</b></font><br><input type=checkbox name="tid31028663" id="tid31028663"  onClick='if (this.checked) {RowSelect("arw31028663",1)} else {RowSelect("arw31028663",0)}'><div id="pdf_31028663" name="pdf_31028663"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=31028663"><b><span style="line-height:1.0;">SUMMARISATION OF WEIGHTED NETWORKS</span></b></a><br><font color=#00008f><i>Zhou F., Qu Q., Toivonen H.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34584695">Journal of Experimental and Theoretical Artificial Intelligence</a>. 
+2017. Т. 29. <a href="/contents.asp?id=34584695&selid=31028663">№&nbsp;5</a>.  С. 1023-1052.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+8</td></tr>
+
+
+
+
+<tr valign=middle id="arw31067631">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3125.</b></font><br><input type=checkbox name="tid31067631" id="tid31067631"  onClick='if (this.checked) {RowSelect("arw31067631",1)} else {RowSelect("arw31067631",0)}'><div id="pdf_31067631" name="pdf_31067631"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=31067631"><b><span style="line-height:1.0;">A NEW MEASURE OF VECTOR DEPENDENCE, WITH APPLICATIONS TO FINANCIAL RISK AND CONTAGION</span></b></a><br><font color=#00008f><i>Medovikov I., Prokhorov A.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34592264">Journal of Financial Econometrics</a>. 
+2017. Т. 15. <a href="/contents.asp?id=34592264&selid=31067631">№&nbsp;3</a>.  С. 474-503.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+7</td></tr>
+
+
+
+
+<tr valign=middle id="arw31029282">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3126.</b></font><br><input type=checkbox name="tid31029282" id="tid31029282"  onClick='if (this.checked) {RowSelect("arw31029282",1)} else {RowSelect("arw31029282",0)}'><div id="pdf_31029282" name="pdf_31029282"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=31029282"><b><span style="line-height:1.0;">COMPARISON OF KINEMATIC AND DYNAMIC LEG TRAJECTORY OPTIMIZATION TECHNIQUES FOR BIPED ROBOT LOCOMOTION</span></b></a><br><font color=#00008f><i>Khusainov R., Klimchik A., Magid E.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Journal of Physics: Conference Series.&nbsp;Bristol, 2017.  С. 012069.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+6</td></tr>
+
+
+
+
+<tr valign=middle id="arw31038855">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3127.</b></font><br><input type=checkbox name="tid31038855" id="tid31038855"  onClick='if (this.checked) {RowSelect("arw31038855",1)} else {RowSelect("arw31038855",0)}'><div id="pdf_31038855" name="pdf_31038855"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=31038855"><b><span style="line-height:1.0;">COMPARATIVE ANALYSIS OF ROS-BASED MONOCULAR SLAM METHODS FOR INDOOR NAVIGATION</span></b></a><br><font color=#00008f><i>Buyval A., Afanasyev I., Magid E.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Proceedings of SPIE - The International Society for Optical Engineering.&nbsp;9. Сер. "Ninth International Conference on Machine Vision, ICMV 2016" 2017.  С. 103411K.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+38</td></tr>
+
+
+
+
+<tr valign=middle id="arw35543178">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3128.</b></font><br><input type=checkbox name="tid35543178" id="tid35543178"  onClick='if (this.checked) {RowSelect("arw35543178",1)} else {RowSelect("arw35543178",0)}'><div id="pdf_35543178" name="pdf_35543178"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=35543178"><b><span style="line-height:1.0;">PBF: A NEW PRIVACY-AWARE BILLING FRAMEWORK FOR ONLINE ELECTRIC VEHICLES WITH BIDIRECTIONAL AUDITABILITY</span></b></a><br><font color=#00008f><i>Hussain R., Son J., Kim D., Nogueira M., Oh H., Tokuta A.O., Seo J.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34494605">Wireless Communications and Mobile Computing</a>. 
+2017. Т. 2017.  С. 5676030.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+12</td></tr>
+
+
+
+
+<tr valign=middle id="arw28916421">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3129.</b></font><br><input type=checkbox name="tid28916421" id="tid28916421"  onClick='if (this.checked) {RowSelect("arw28916421",1)} else {RowSelect("arw28916421",0)}'><div id="pdf_28916421" name="pdf_28916421"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=28916421"><b><span style="line-height:1.0;">ЭКСТРЕМАЛЬНЫЕ КОЛЕБАНИЯ РОССИЙСКОГО ФОНДОВОГО РЫНКА И ИХ ПОСЛЕДСТВИЯ ДЛЯ УПРАВЛЕНИЯ И ЭКОНОМИЧЕСКОГО МОДЕЛИРОВАНИЯ</span></b></a><br><font color=#00008f><i>Анкудинов А.Б., Ибрагимов Р.М., Лебедев О.В.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34469688">Прикладная эконометрика</a>. 
+2017. <a href="/contents.asp?id=34469688&selid=28916421">№&nbsp;1&nbsp;(45)</a>.  С. 75-92.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+10</td></tr>
+
+
+
+
+<tr valign=middle id="arw30730610">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3130.</b></font><br><input type=checkbox name="tid30730610" id="tid30730610"  onClick='if (this.checked) {RowSelect("arw30730610",1)} else {RowSelect("arw30730610",0)}'><div id="pdf_30730610" name="pdf_30730610"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=30730610"><b><span style="line-height:1.0;">JOLIE STATIC TYPE CHECKER: A PROTOTYPE</span></b></a><br><font color=#00008f><i>de Carvalho D., Mazzara M., Mingela B., Safina L., Tchitchigin A., Troshkov N.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34551084">Modeling and Analysis of Information Systems</a>. 
+2017. Т. 24. <a href="/contents.asp?id=34551084&selid=30730610">№&nbsp;6</a>.  С. 704-717.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+1</td></tr>
+
+
+
+
+<tr valign=middle id="arw35492298">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3131.</b></font><br><input type=checkbox name="tid35492298" id="tid35492298"  onClick='if (this.checked) {RowSelect("arw35492298",1)} else {RowSelect("arw35492298",0)}'><div id="pdf_35492298" name="pdf_35492298"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=35492298"><b><span style="line-height:1.0;">GRAPH-BASED SPATIAL-SPECTRAL FEATURE LEARNING FOR HYPERSPECTRAL IMAGE CLASSIFICATION</span></b></a><br><font color=#00008f><i>Ahmad M., Khan A.M., Hussain R.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=35492297">IET Image Processing</a>. 
+2017. Т. 11. <a href="/contents.asp?id=35492297&selid=35492298">№&nbsp;12</a>.  С. 1310-1316.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+26</td></tr>
+
+
+
+
+<tr valign=middle id="arw30026023">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3132.</b></font><br><input type=checkbox name="tid30026023" id="tid30026023"  onClick='if (this.checked) {RowSelect("arw30026023",1)} else {RowSelect("arw30026023",0)}'><div id="pdf_30026023" name="pdf_30026023"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=30026023"><b><span style="line-height:1.0;">СУЩНОСТЬ И СОДЕРЖАНИЕ ПЕДАГОГИЧЕСКОГО ОБЕСПЕЧЕНИЯ ПРОФЕССИОНАЛЬНО-ОРИЕНТИРОВАННОГО ОТБОРА АБИТУРИЕНТОВ В СОВРЕМЕННЫХ ВУЗАХ</span></b></a><br><font color=#00008f><i>Масягин С.В.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34535895">Человеческий капитал</a>. 
+2017. <a href="/contents.asp?id=34535895&selid=30026023">№&nbsp;9&nbsp;(105)</a>.  С. 70-73.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw29968642">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3133.</b></font><br><input type=checkbox name="tid29968642" id="tid29968642"  onClick='if (this.checked) {RowSelect("arw29968642",1)} else {RowSelect("arw29968642",0)}'><div id="pdf_29968642" name="pdf_29968642"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29968642"><b><span style="line-height:1.0;">A CONTRACT-BASED METHOD TO SPECIFY STIMULUS-RESPONSE REQUIREMENTS</span></b></a><br><font color=#00008f><i>Naumchev A., Mazzara M., Meyer B., Bruel J.M., Galinier F., Ebersold S.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34533981">Proceedings of the Institute for System Programming of the RAS</a>. 
+2017. Т. 29. <a href="/contents.asp?id=34533981&selid=29968642">№&nbsp;4</a>.  С. 39-54.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw28283482">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3134.</b></font><br><input type=checkbox name="tid28283482" id="tid28283482"  onClick='if (this.checked) {RowSelect("arw28283482",1)} else {RowSelect("arw28283482",0)}'><div id="pdf_28283482" name="pdf_28283482"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=28283482"><b><span style="line-height:1.0;">DEEP LEARNING MODEL FOR BILINGUAL SENTIMENT CLASSIFICATION OF SHORT TEXTS</span></b></a><br><font color=#00008f><i>Abdullin Y.B., Ivanov V.V.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34416799">Scientific and Technical Journal of Information Technologies, Mechanics and Optics</a>. 
+2017. Т. 17. <a href="/contents.asp?id=34416799&selid=28283482">№&nbsp;1</a>.  С. 129-136.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+4</td></tr>
+
+
+
+
+<tr valign=middle id="arw29909947">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3135.</b></font><br><input type=checkbox name="tid29909947" id="tid29909947"  onClick='if (this.checked) {RowSelect("arw29909947",1)} else {RowSelect("arw29909947",0)}'><div id="pdf_29909947" name="pdf_29909947"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29909947"><b><span style="line-height:1.0;">TOWARDS STATIC TYPE-CHECKING FOR JOLIE</span></b></a><br><font color=#00008f><i>Mingela B., Troshkov N., Mazzara M., Safina L., Tchitchigin A., de Carvalho D.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34531929">System Informatics</a>. 
+2017. <a href="/contents.asp?id=34531929&selid=29909947">№&nbsp;10</a>.  С. 77-87.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw35515950">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3136.</b></font><br><input type=checkbox name="tid35515950" id="tid35515950"  onClick='if (this.checked) {RowSelect("arw35515950",1)} else {RowSelect("arw35515950",0)}'><div id="pdf_35515950" name="pdf_35515950"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=35515950"><b><span style="line-height:1.0;">ENERGY-AWARE CLUSTER RECONFIGURATION ALGORITHM FOR THE BIG DATA ANALYTICS PLATFORM SPARK</span></b></a><br><font color=#00008f><i>Duan K., Fong S., Song W., Vasilakos A.V., Wong R.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34602642">Sustainability</a>. 
+2017. Т. 9. <a href="/contents.asp?id=34602642&selid=35515950">№&nbsp;12</a>.  С. 2357.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+3</td></tr>
+
+
+
+
+<tr valign=middle id="arw29498632">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3137.</b></font><br><input type=checkbox name="tid29498632" id="tid29498632"  onClick='if (this.checked) {RowSelect("arw29498632",1)} else {RowSelect("arw29498632",0)}'><div id="pdf_29498632" name="pdf_29498632"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29498632"><b><span style="line-height:1.0;">NEUROMORPHIC ROBOT DREAM</span></b></a><br><font color=#00008f><i>Tchitchigin A., Talanov M., Safina L., Mazzara M.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34492209">BioNanoScience</a>. 
+2017. Т. 7. <a href="/contents.asp?id=34492209&selid=29498632">№&nbsp;1</a>.  С. 199-200.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+2</td></tr>
+
+
+
+
+<tr valign=middle id="arw31013115">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3138.</b></font><br><input type=checkbox name="tid31013115" id="tid31013115"  onClick='if (this.checked) {RowSelect("arw31013115",1)} else {RowSelect("arw31013115",0)}'><div id="pdf_31013115" name="pdf_31013115"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=31013115"><b><span style="line-height:1.0;">PSEUDOREHEARSAL IN VALUE FUNCTION APPROXIMATION</span></b></a><br><font color=#00008f><i>Marochko V., Johard L., Mazzara M.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34581342">Smart Innovation, Systems and Technologies</a>. 
+2017. Т. 74.  С. 178-189.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+1</td></tr>
+
+
+
+
+<tr valign=middle id="arw35500938">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3139.</b></font><br><input type=checkbox name="tid35500938" id="tid35500938"  onClick='if (this.checked) {RowSelect("arw35500938",1)} else {RowSelect("arw35500938",0)}'><div id="pdf_35500938" name="pdf_35500938"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=35500938"><b><span style="line-height:1.0;">COPULAS AND LONG MEMORY</span></b></a><br><font color=#00008f><i>Ibragimov R., Lentzas G.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34516283">Probability Surveys</a>. 
+2017. Т. 14. <a href="/contents.asp?id=34516283&selid=35500938">№&nbsp;2017</a>.  С. 289-327.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+8</td></tr>
+
+
+
+
+<tr valign=middle id="arw28391590">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3140.</b></font><br><input type=checkbox name="tid28391590" id="tid28391590"  onClick='if (this.checked) {RowSelect("arw28391590",1)} else {RowSelect("arw28391590",0)}'><div id="pdf_28391590" name="pdf_28391590"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=28391590"><b><span style="line-height:1.0;">РЕЦЕНЗИЯ НА КНИГУ "СЕМЬ БЕЗОПАСНЫХ ИНФОРМАЦИОННЫХ ТЕХНОЛОГИЙ"</span></b></a><br><font color=#00008f><i>Петренко С.А.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34421017">Вопросы кибербезопасности</a>. 
+2017. <a href="/contents.asp?id=34421017&selid=28391590">№&nbsp;1&nbsp;(19)</a>.  С. 67-72.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+1</td></tr>
+
+
+
+
+<tr valign=middle id="arw29925545">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3141.</b></font><br><input type=checkbox name="tid29925545" id="tid29925545"  onClick='if (this.checked) {RowSelect("arw29925545",1)} else {RowSelect("arw29925545",0)}'><div id="pdf_29925545" name="pdf_29925545"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29925545"><b><span style="line-height:1.0;">ПРЕДСТАВЛЕНИЕ ПРОГРАММ ИНВАРИАНТАМИ ПОДОБИЯ ДЛЯ КОНТРОЛЯ ИСКАЖЕНИЯ ВЫЧИСЛЕНИЙ</span></b></a><br><font color=#00008f><i>Харжевская А.В., Ломако А.Г., Петренко С.А.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34532532">Вопросы кибербезопасности</a>. 
+2017. <a href="/contents.asp?id=34532532&selid=29925545">№&nbsp;2&nbsp;(20)</a>.  С. 9-20.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+19</td></tr>
+
+
+
+
+<tr valign=middle id="arw35715930">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3142.</b></font><br><input type=checkbox name="tid35715930" id="tid35715930"  onClick='if (this.checked) {RowSelect("arw35715930",1)} else {RowSelect("arw35715930",0)}'><div id="pdf_35715930" name="pdf_35715930"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=35715930"><b><span style="line-height:1.0;">ON THE DESIGN OF PROVABLY SECURE LIGHTWEIGHT REMOTE USER AUTHENTICATION SCHEME FOR MOBILE CLOUD COMPUTING SERVICES</span></b></a><br><font color=#00008f><i>Roy S., Chatterjee S., Das A.K., Chattopadhyay S., Kumar N., Vasilakos A.V.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34465242">IEEE Access</a>. 
+2017. Т. 5.  С. 25808-25825.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+91</td></tr>
+
+
+
+
+<tr valign=middle id="arw30755902">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3143.</b></font><br><input type=checkbox name="tid30755902" id="tid30755902"  onClick='if (this.checked) {RowSelect("arw30755902",1)} else {RowSelect("arw30755902",0)}'><div id="pdf_30755902" name="pdf_30755902"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=30755902"><b><span style="line-height:1.0;">EVALUATING TRUST THROUGH TEMPORAL INFORMATION</span></b></a><br><font color=#00008f><i>Lee J., Rivera V., Mazzara M., Dondio P., Longo L.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34552162">Geoinformatics Research Papers. Proceedings of the Geophysical Center RAS</a>. 
+2017. Т. 5. <a href="/contents.asp?id=34552162&selid=30755902">№&nbsp;1</a>.  С. 134.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw30755911">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3144.</b></font><br><input type=checkbox name="tid30755911" id="tid30755911"  onClick='if (this.checked) {RowSelect("arw30755911",1)} else {RowSelect("arw30755911",0)}'><div id="pdf_30755911" name="pdf_30755911"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=30755911"><b><span style="line-height:1.0;">ANALYZING SOCIAL PATTERNS WITH WIFI</span></b></a><br><font color=#00008f><i>Romanov V., Succi G.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34552162">Geoinformatics Research Papers. Proceedings of the Geophysical Center RAS</a>. 
+2017. Т. 5. <a href="/contents.asp?id=34552162&selid=30755911">№&nbsp;1</a>.  С. 142.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw30755916">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3145.</b></font><br><input type=checkbox name="tid30755916" id="tid30755916"  onClick='if (this.checked) {RowSelect("arw30755916",1)} else {RowSelect("arw30755916",0)}'><div id="pdf_30755916" name="pdf_30755916"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=30755916"><b><span style="line-height:1.0;">TEACHING ADVANCES STATISTICS FOR DATA SCIENCE STUDENTS WITH A SOFTWARE ENGINEERING FLAVOUR</span></b></a><br><font color=#00008f><i>Ivanov V., Stanko T., Succi G.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34552162">Geoinformatics Research Papers. Proceedings of the Geophysical Center RAS</a>. 
+2017. Т. 5. <a href="/contents.asp?id=34552162&selid=30755916">№&nbsp;1</a>.  С. 148.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw31053827">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3146.</b></font><br><input type=checkbox name="tid31053827" id="tid31053827"  onClick='if (this.checked) {RowSelect("arw31053827",1)} else {RowSelect("arw31053827",0)}'><div id="pdf_31053827" name="pdf_31053827"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=31053827"><b><span style="line-height:1.0;">FAST, MEMORY-EFFICIENT LOW-RANK APPROXIMATION OF SIMRANK</span></b></a><br><font color=#00008f><i>Oseledets I.V., Ovchinnikov G.V., Katrutsa A.M.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34589697">Journal of Complex Networks</a>. 
+2017. Т. 5. <a href="/contents.asp?id=34589697&selid=31053827">№&nbsp;1</a>.  С. 111-126.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+3</td></tr>
+
+
+
+
+<tr valign=middle id="arw36807347">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3147.</b></font><br><input type=checkbox name="tid36807347" id="tid36807347"  onClick='if (this.checked) {RowSelect("arw36807347",1)} else {RowSelect("arw36807347",0)}'><div id="pdf_36807347" name="pdf_36807347"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=36807347"><b><span style="line-height:1.0;">МОНИТОРИНГ ИНФОРМАЦИОННОЙ БЕЗОПАСНОСТИ ИНТЕЛЛЕКТУАЛЬНЫХ ЭНЕРГОСИСТЕМ (SMART GRID) НА ОСНОВЕ ТЕХНОЛОГИЙ БОЛЬШИХ ДАННЫХ (BIG DATA)</span></b></a><br><font color=#00008f><i>Петренко С.А.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=36807300">Методы и технические средства обеспечения безопасности информации</a>. 
+2017. <a href="/contents.asp?id=36807300&selid=36807347">№&nbsp;26</a>.  С. 86-89.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+1</td></tr>
+
+
+
+
+<tr valign=middle id="arw45440156">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3148.</b></font><br><input type=checkbox name="tid45440156" id="tid45440156"  onClick='if (this.checked) {RowSelect("arw45440156",1)} else {RowSelect("arw45440156",0)}'><div id="pdf_45440156" name="pdf_45440156"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=45440156"><b><span style="line-height:1.0;">ACADEMIC ADVISING SYSTEMS: A SYSTEMATIC LITERATURE REVIEW OF EMPIRICAL EVIDENCE</span></b></a><br><font color=#00008f><i>Iatrellis O., Kameas A., Fitsilis P.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=45440155">Education Sciences</a>. 
+2017. Т. 7. <a href="/contents.asp?id=45440155&selid=45440156">№&nbsp;4</a>.  С. 90.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+32</td></tr>
+
+
+
+
+<tr valign=middle id="arw35761663">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3149.</b></font><br><input type=checkbox name="tid35761663" id="tid35761663"  onClick='if (this.checked) {RowSelect("arw35761663",1)} else {RowSelect("arw35761663",0)}'><div id="pdf_35761663" name="pdf_35761663"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=35761663"><b><span style="line-height:1.0;">VISUAL LOCALIZATION FOR COPTER BASED ON 3D MODEL OF ENVIRONMENT WITH CNN SEGMENTATION</span></b></a><br><font color=#00008f><i>Buyval A., Mustafin R., Gabdullin A., Shimchik I., Gavrilenkov M.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Proceedings of Science.&nbsp;5. Сер. "Information Science and Cloud Computing, ISCC 2017" 2017. 
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw39346681">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3150.</b></font><br><input type=checkbox name="tid39346681" id="tid39346681"  onClick='if (this.checked) {RowSelect("arw39346681",1)} else {RowSelect("arw39346681",0)}'><div id="pdf_39346681" name="pdf_39346681"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=39346681"><b><span style="line-height:1.0;">СИСТЕМА АВТОМАТИЧЕСКОГО РАСПОЗНАВАНИЯ ПАТОЛОГИЙ ЛЕГКИХ ПО РЕНТГЕНОВСКИМ ИЗОБРАЖЕНИЯМ</span></b></a><br><font color=#00008f><i>Кулеев Р.Ф., Владимиров А.В., Закиров А.Н.</i></font><br>
+<font color=#00008f>
+
+
+Свидетельство о регистрации программы для ЭВМ RU&nbsp;2016614293, 20.04.2016.
+ Заявка&nbsp;№&nbsp;2015662324&nbsp;от&nbsp;16.12.2015.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw39348502">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3151.</b></font><br><input type=checkbox name="tid39348502" id="tid39348502"  onClick='if (this.checked) {RowSelect("arw39348502",1)} else {RowSelect("arw39348502",0)}'><div id="pdf_39348502" name="pdf_39348502"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=39348502"><b><span style="line-height:1.0;">ИНСТРУМЕНТ ВИЗУАЛИЗАЦИИ ПРОЦЕССА ВЫПОЛНЕНИЯ ПРОГРАММЫ</span></b></a><br><font color=#00008f><i>Суччи Д.Б., Иванов В.В., Мингазов М.Р., Резник А.С., Литвинов С.М., Кондратьев Д.С.</i></font><br>
+<font color=#00008f>
+
+
+Свидетельство о регистрации программы для ЭВМ RU&nbsp;2016615853, 01.06.2016.
+ Заявка&nbsp;№&nbsp;2016613256&nbsp;от&nbsp;06.04.2016.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw39357912">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3152.</b></font><br><input type=checkbox name="tid39357912" id="tid39357912"  onClick='if (this.checked) {RowSelect("arw39357912",1)} else {RowSelect("arw39357912",0)}'><div id="pdf_39357912" name="pdf_39357912"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=39357912"><b><span style="line-height:1.0;">СИСТЕМА УПРАВЛЕНИЯ АНТРОПОМОРФНЫМ РОБОТОМ</span></b></a><br><font color=#00008f><i>Климчик А.С., Сагитов А.Г., Хусаинов Р.Р., Магид Е.А.</i></font><br>
+<font color=#00008f>
+
+
+Свидетельство о регистрации программы для ЭВМ RU&nbsp;2016663521, 12.12.2016.
+ Заявка&nbsp;№&nbsp;2016660908&nbsp;от&nbsp;18.10.2016.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw53878841">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3153.</b></font><br><input type=checkbox name="tid53878841" id="tid53878841"  onClick='if (this.checked) {RowSelect("arw53878841",1)} else {RowSelect("arw53878841",0)}'><div id="pdf_53878841" name="pdf_53878841"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=53878841"><b><span style="line-height:1.0;">CОВРЕМЕННЫЕ МЕТОДЫ МОДЕЛИРОВАНИЯ И УСТОЙЧИВОГО АНАЛИЗА БОЛЬШИХ ДАННЫХ В ФИНАНСАХ И ЭКОНОМИКЕ, С АДАПТАЦИЕЙ ДЛЯ ЭФФЕКТИВНОЙ РАБОТЫ НА ВЫСОКОПРОИЗВОДИТЕЛЬНЫХ (ПАРАЛЛЕЛЬНЫХ И РАСПРЕДЕЛЕННЫХ) ВЫЧИСЛИТЕЛЬНЫХ СИСТЕМАХ И ПРИЛОЖЕНИЯМИ К ИССЛЕДОВАНИЮ КРИЗИСОВ И ИХ РАСПРОСТРАНЕНИЯ НА ФИНАНСОВЫХ И ЭКОНОМИЧЕСКИХ РЫНКАХ</span></b></a><br><font color=#00008f><i>Ибрагимов Р.М.</i></font><br>
+<font color=#00008f>
+
+
+
+
+НИР: грант&nbsp;№&nbsp;16-18-10432. Российский научный фонд. 2016.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw53878842">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3154.</b></font><br><input type=checkbox name="tid53878842" id="tid53878842"  onClick='if (this.checked) {RowSelect("arw53878842",1)} else {RowSelect("arw53878842",0)}'><div id="pdf_53878842" name="pdf_53878842"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=53878842"><b><span style="line-height:1.0;">CОВРЕМЕННЫЕ МЕТОДЫ МОДЕЛИРОВАНИЯ И УСТОЙЧИВОГО АНАЛИЗА БОЛЬШИХ ДАННЫХ В ФИНАНСАХ И ЭКОНОМИКЕ, С АДАПТАЦИЕЙ ДЛЯ ЭФФЕКТИВНОЙ РАБОТЫ НА ВЫСОКОПРОИЗВОДИТЕЛЬНЫХ (ПАРАЛЛЕЛЬНЫХ И РАСПРЕДЕЛЕННЫХ) ВЫЧИСЛИТЕЛЬНЫХ СИСТЕМАХ И ПРИЛОЖЕНИЯМИ К ИССЛЕДОВАНИЮ КРИЗИСОВ И ИХ РАСПРОСТРАНЕНИЯ НА ФИНАНСОВЫХ И ЭКОНОМИЧЕСКИХ РЫНКАХ</span></b></a><br><font color=#00008f><i>Ибрагимов Р.М.</i></font><br>
+<font color=#00008f>
+
+
+
+
+Отчет о НИР&nbsp;№&nbsp;16-18-10432. Российский научный фонд. 2016.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw29468342">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3155.</b></font><br><input type=checkbox name="tid29468342" id="tid29468342"  onClick='if (this.checked) {RowSelect("arw29468342",1)} else {RowSelect("arw29468342",0)}'><div id="pdf_29468342" name="pdf_29468342"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29468342"><b><span style="line-height:1.0;">EVOLUTIONARY PARTITIONING REGRESSION WITH FUNCTION STACKS</span></b></a><br><font color=#00008f><i>Ashlock D., Brown J.A.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: 2016 IEEE Congress on Evolutionary Computation, CEC 2016.&nbsp;2016.  С. 1469-1476.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw27579526">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3156.</b></font><br><input type=checkbox name="tid27579526" id="tid27579526"  onClick='if (this.checked) {RowSelect("arw27579526",1)} else {RowSelect("arw27579526",0)}'><div id="pdf_27579526" name="pdf_27579526"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=27579526"><b><span style="line-height:1.0;">COMPLETE CONTRACTS THROUGH SPECIFICATION DRIVERS</span></b></a><br><font color=#00008f><i>Naumchev A., Meyer B.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Proceedings - 10th International Symposium on Theoretical Aspects of Software Engineering, TASE 2016.&nbsp;10. 2016.  С. 160-167.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+8</td></tr>
+
+
+
+
+<tr valign=middle id="arw25573390">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3157.</b></font><br><input type=checkbox name="tid25573390" id="tid25573390"  onClick='if (this.checked) {RowSelect("arw25573390",1)} else {RowSelect("arw25573390",0)}'><div id="pdf_25573390" name="pdf_25573390"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=25573390"><b><span style="line-height:1.0;">АВТОМАТИЗИРОВАННЫЕ СИСТЕМЫ ДЛЯ УВЕЛИЧЕНИЯ ДЛИТЕЛЬНОСТИ ПОЛЕТА ЭЛЕКТРИЧЕСКИХ МУЛЬТИКОПТЕРОВ</span></b></a><br><font color=#00008f><i>Данилов И.Ю., Афанасьев И.М., Магид Е.А.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Робототехника и искусственный интеллект.&nbsp;Материалы VII Всероссийской научно-технической конференции с международным участием. 2016.  С. 19-24.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+1</td></tr>
+
+
+
+
+<tr valign=middle id="arw27625160">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3158.</b></font><br><input type=checkbox name="tid27625160" id="tid27625160"  onClick='if (this.checked) {RowSelect("arw27625160",1)} else {RowSelect("arw27625160",0)}'><div id="pdf_27625160" name="pdf_27625160"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=27625160"><b><span style="line-height:1.0;">FUN WITH FORMAL METHODS</span></b></a><br><font color=#00008f><i>Шилов Н.В., Шилова С.О.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Международная школа "Математическое моделирование фундаментальных объектов и явлений в системах компьютерной математики - KAZCAS-2016". Международная научно-практическая конференция "Информационные технологии в образовании и науке - ИТОН-2016".&nbsp;Труды школы и материалы конференции. Под общей редакцией Ю.Г. Игнатьева. 2016.  С. 214-216.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw29087433">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3159.</b></font><br><input type=checkbox name="tid29087433" id="tid29087433"  onClick='if (this.checked) {RowSelect("arw29087433",1)} else {RowSelect("arw29087433",0)}'><div id="pdf_29087433" name="pdf_29087433"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29087433"><b><span style="line-height:1.0;">РАЗРАБОТКА РАСПРЕДЕЛЕННЫХ АНТЕННЫХ СИСТЕМ ДЛЯ СОЗДАНИЯ ПАССИВНЫХ RFID МЕТОК С НАДЕЖНОСТЬЮ СЧИТЫВАНИЯ БЛИЗКОЙ К 100% И ДАЛЬНОСТЬЮ ДЕЙСТВИЯ БОЛЕЕ 20 МЕТРОВ</span></b></a><br><font color=#00008f><i>Игудесман К.Б., Овчаров А.П., Тумаков Д.Н.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Современные проблемы безопасности жизнедеятельности: интеллектуальные транспортные системы.&nbsp;Материалы IV международной научно-практической конференции. 2016.  С. 229-237.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw27550973">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3160.</b></font><br><input type=checkbox name="tid27550973" id="tid27550973"  onClick='if (this.checked) {RowSelect("arw27550973",1)} else {RowSelect("arw27550973",0)}'><div id="pdf_27550973" name="pdf_27550973"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=27550973"><b><span style="line-height:1.0;">ТЕХНОЛОГИЯ ШИФРОВАНИЯ В ДЕЦЕНТРАЛИЗОВАННОМ ОБЛАЧНОМ ХРАНИЛИЩЕ</span></b></a><br><font color=#00008f><i>Ибрагимов М.К.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Новые информационные технологии и системы.&nbsp;сборник научных статей XIII Международной научно‐технической 
+конференции. 2016.  С. 231-234.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw29024411">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3161.</b></font><br><input type=checkbox name="tid29024411" id="tid29024411"  onClick='if (this.checked) {RowSelect("arw29024411",1)} else {RowSelect("arw29024411",0)}'><div id="pdf_29024411" name="pdf_29024411"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29024411"><b><span style="line-height:1.0;">СОЗДАНИЕ НАЦИОНАЛЬНОЙ СИСТЕМЫ РАННЕГО ПРЕДУПРЕЖДЕНИЯ О КОМПЬЮТЕРНОМ НАПАДЕНИИ</span></b></a><br><font color=#00008f><i>Петренко С.А.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: БЕЗОПАСНЫЕ ИНФОРМАЦИОННЫЕ ТЕХНОЛОГИИ (БИТ-2016).&nbsp;Сборник трудов Седьмой Всероссийской научно-технической конференции. Под редакцией В.А. Матвеева. 2016.  С. 232-237.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+1</td></tr>
+
+
+
+
+<tr valign=middle id="arw31059204">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3162.</b></font><br><input type=checkbox name="tid31059204" id="tid31059204"  onClick='if (this.checked) {RowSelect("arw31059204",1)} else {RowSelect("arw31059204",0)}'><div id="pdf_31059204" name="pdf_31059204"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=31059204"><b><span style="line-height:1.0;">ASSESSING THE PROCESS OF AN EASTERN EUROPEAN SOFTWARE SME USING SYSTEMIC ANALYSIS, GQM, AND RELIABILITY GROWTH MODELS: A CASE STUDY</span></b></a><br><font color=#00008f><i>Ivanov V., Mazzara M., Succi G., Pedrycz W., Sillitti A.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Proceedings - International Conference on Software Engineering.&nbsp;38. Сер. "Proceedings - 5th International Workshop on Green and Sustainable Software, GREENS 2016" 2016.  С. 251-259.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+10</td></tr>
+
+
+
+
+<tr valign=middle id="arw29484549">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3163.</b></font><br><input type=checkbox name="tid29484549" id="tid29484549"  onClick='if (this.checked) {RowSelect("arw29484549",1)} else {RowSelect("arw29484549",0)}'><div id="pdf_29484549" name="pdf_29484549"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29484549"><b><span style="line-height:1.0;">SOUNDNESS PROOF OF EVENTB2JAVA</span></b></a><br><font color=#00008f><i>Catano N., Nishi S.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Proceedings - 7th Latin-American Symposium on Dependable Computing, LADC 2016.&nbsp;7. 2016.  С. 25-34.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+1</td></tr>
+
+
+
+
+<tr valign=middle id="arw29466919">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3164.</b></font><br><input type=checkbox name="tid29466919" id="tid29466919"  onClick='if (this.checked) {RowSelect("arw29466919",1)} else {RowSelect("arw29466919",0)}'><div id="pdf_29466919" name="pdf_29466919"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29466919"><b><span style="line-height:1.0;">LRI: A LOW RANK APPROACH TO NON-LOCAL SPARSE REPRESENTATION FOR IMAGE INTERPOLATION</span></b></a><br><font color=#00008f><i>Zhang M., Desrosiers C., Qu Q., Nobari S.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Proceedings of the International Joint Conference on Neural Networks.&nbsp;2016 International Joint Conference on Neural Networks, IJCNN 2016. 2016.  С. 3016-3022.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+1</td></tr>
+
+
+
+
+<tr valign=middle id="arw29471380">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3165.</b></font><br><input type=checkbox name="tid29471380" id="tid29471380"  onClick='if (this.checked) {RowSelect("arw29471380",1)} else {RowSelect("arw29471380",0)}'><div id="pdf_29471380" name="pdf_29471380"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29471380"><b><span style="line-height:1.0;">GAIT FINGERPRINTING-BASED USER IDENTIFICATION ON SMARTPHONES</span></b></a><br><font color=#00008f><i>Ahmad M., Khan A.M., Protasov S., Brown J.A., Khattak A.M.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Proceedings of the International Joint Conference on Neural Networks.&nbsp;2016 International Joint Conference on Neural Networks, IJCNN 2016. 2016.  С. 3060-3067.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+22</td></tr>
+
+
+
+
+<tr valign=middle id="arw27151057">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3166.</b></font><br><input type=checkbox name="tid27151057" id="tid27151057"  onClick='if (this.checked) {RowSelect("arw27151057",1)} else {RowSelect("arw27151057",0)}'><div id="pdf_27151057" name="pdf_27151057"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=27151057"><b><span style="line-height:1.0;">ON EFFICIENTLY SUMMARIZING A LARGE DYNAMIC GRAPH</span></b></a><br><font color=#00008f><i>Khan K.U., Rasel M.K., Noorulamin M., Lee Y.-K., Nawaz W.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: 2016 International Conference on Big Data and Smart Computing, BigComp 2016.&nbsp;2016.  С. 345-348.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw29478909">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3167.</b></font><br><input type=checkbox name="tid29478909" id="tid29478909"  onClick='if (this.checked) {RowSelect("arw29478909",1)} else {RowSelect("arw29478909",0)}'><div id="pdf_29478909" name="pdf_29478909"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29478909"><b><span style="line-height:1.0;">JOLIE COMMUNITY ON THE RISE</span></b></a><br><font color=#00008f><i>Bandura A., Kurilenko N., Mazzara M., Rivera V., Safina L., Tchitchigin A.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Proceedings - 2016 IEEE 9th International Conference on Service-Oriented Computing and Applications, SOCA 2016.&nbsp;9. 2016.  С. 40-43.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+7</td></tr>
+
+
+
+
+<tr valign=middle id="arw29469751">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3168.</b></font><br><input type=checkbox name="tid29469751" id="tid29469751"  onClick='if (this.checked) {RowSelect("arw29469751",1)} else {RowSelect("arw29469751",0)}'><div id="pdf_29469751" name="pdf_29469751"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29469751"><b><span style="line-height:1.0;">SMARTPHONE GAIT FINGERPRINTING MODELS VIA GENETIC PROGRAMMING</span></b></a><br><font color=#00008f><i>Hughes J.A., Brown J.A., Khan A.M.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: 2016 IEEE Congress on Evolutionary Computation, CEC 2016.&nbsp;2016.  С. 408-415.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+9</td></tr>
+
+
+
+
+<tr valign=middle id="arw25579463">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3169.</b></font><br><input type=checkbox name="tid25579463" id="tid25579463"  onClick='if (this.checked) {RowSelect("arw25579463",1)} else {RowSelect("arw25579463",0)}'><div id="pdf_25579463" name="pdf_25579463"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=25579463"><b><span style="line-height:1.0;">МОДЕЛЬ СИСТЕМЫ УПРАВЛЕНИЯ БИПЕДАЛЬНОГО РОБОТА В MATLAB/SIMULINK, ОСНОВАННАЯ НА МЕТОДЕ БАЗОВЫХ КОМПОНЕНТ ХОДЬБЫ</span></b></a><br><font color=#00008f><i>Хусаинов Р.Р., Шимчик И.А., Афанасьев И.М., Магид Е.А.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Робототехника и искусственный интеллект.&nbsp;Материалы VII Всероссийской научно-технической конференции с международным участием. 2016.  С. 41-46.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw36681338">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3170.</b></font><br><input type=checkbox name="tid36681338" id="tid36681338"  onClick='if (this.checked) {RowSelect("arw36681338",1)} else {RowSelect("arw36681338",0)}'><div id="pdf_36681338" name="pdf_36681338"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=36681338"><b><span style="line-height:1.0;">ОБЗОР ТЕОРИИ АЛГЕБРАИЧЕСКИХ МОДЕЛЕЙ ПРОГРАММ</span></b></a><br><font color=#00008f><i>Шилов Н.В.</i></font><br>
+<font color=#00008f>
+
+
+ В книге: МАЛЬЦЕВСКИЕ ЧТЕНИЯ 2016.&nbsp;Тезисы докладов. 2016.  С. 42.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+1</td></tr>
+
+
+
+
+<tr valign=middle id="arw36681342">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3171.</b></font><br><input type=checkbox name="tid36681342" id="tid36681342"  onClick='if (this.checked) {RowSelect("arw36681342",1)} else {RowSelect("arw36681342",0)}'><div id="pdf_36681342" name="pdf_36681342"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=36681342"><b><span style="line-height:1.0;">ШАБЛОНЫ ДИНАМИЧЕСКОГО ПРОГРАММИРОВАНИЯ</span></b></a><br><font color=#00008f><i>Шилов Н.В.</i></font><br>
+<font color=#00008f>
+
+
+ В книге: МАЛЬЦЕВСКИЕ ЧТЕНИЯ 2016.&nbsp;Тезисы докладов. 2016.  С. 43.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+1</td></tr>
+
+
+
+
+<tr valign=middle id="arw29087349">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3172.</b></font><br><input type=checkbox name="tid29087349" id="tid29087349"  onClick='if (this.checked) {RowSelect("arw29087349",1)} else {RowSelect("arw29087349",0)}'><div id="pdf_29087349" name="pdf_29087349"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29087349"><b><span style="line-height:1.0;">СИСТЕМЫ КРУГОВОГО ОБЗОРА И ИНТЕЛЛЕКТУАЛЬНОГО АНАЛИЗА ПАНОРАМНОГО ВИДЕОНАБЛЮДЕНИЯ ДЛЯ ПОМОЩИ ВОДИТЕЛЮ</span></b></a><br><font color=#00008f><i>Афанасьев И.М., Магид Е.А.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Современные проблемы безопасности жизнедеятельности: интеллектуальные транспортные системы.&nbsp;Материалы IV международной научно-практической конференции. 2016.  С. 52-60.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw31061646">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3173.</b></font><br><input type=checkbox name="tid31061646" id="tid31061646"  onClick='if (this.checked) {RowSelect("arw31061646",1)} else {RowSelect("arw31061646",0)}'><div id="pdf_31061646" name="pdf_31061646"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=31061646"><b><span style="line-height:1.0;">A GUIDED TOUR OF THE LEGAL IMPLICATIONS OF SOFTWARE CLONING</span></b></a><br><font color=#00008f><i>Ciancarini P., Russo D., Sillitti A., Succi G.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Proceedings - International Conference on Software Engineering.&nbsp;38. Сер. "Proceedings - 5th International Workshop on Green and Sustainable Software, GREENS 2016" 2016.  С. 563-572.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+8</td></tr>
+
+
+
+
+<tr valign=middle id="arw29087431">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3174.</b></font><br><input type=checkbox name="tid29087431" id="tid29087431"  onClick='if (this.checked) {RowSelect("arw29087431",1)} else {RowSelect("arw29087431",0)}'><div id="pdf_29087431" name="pdf_29087431"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29087431"><b><span style="line-height:1.0;">АВТОНОМНАЯ МАШИНА ДЛЯ ГОЛЬФА: РАЗРАБОТКА КОНФИГУРАЦИИ ТРАНСПОРТНОГО СРЕДСТВА И КОНЦЕПЦИИ АРХИТЕКТУРЫ ПРОГРАММНОГО ОБЕСПЕЧЕНИЯ</span></b></a><br><font color=#00008f><i>Шимчик И.А., Магид Е.А.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Современные проблемы безопасности жизнедеятельности: интеллектуальные транспортные системы.&nbsp;Материалы IV международной научно-практической конференции. 2016.  С. 612-617.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw31062674">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3175.</b></font><br><input type=checkbox name="tid31062674" id="tid31062674"  onClick='if (this.checked) {RowSelect("arw31062674",1)} else {RowSelect("arw31062674",0)}'><div id="pdf_31062674" name="pdf_31062674"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=31062674"><b><span style="line-height:1.0;">APPLYING SCRUM TO THE ARMY: A CASE STUDY</span></b></a><br><font color=#00008f><i>Benedicenti L., Cotugno F., Messina A., Ciancarini P., Pedrycz W., Sillitti A., Succi G.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Proceedings - International Conference on Software Engineering.&nbsp;38. Сер. "Proceedings - 5th International Workshop on Green and Sustainable Software, GREENS 2016" 2016.  С. 725-727.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+10</td></tr>
+
+
+
+
+<tr valign=middle id="arw27159599">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3176.</b></font><br><input type=checkbox name="tid27159599" id="tid27159599"  onClick='if (this.checked) {RowSelect("arw27159599",1)} else {RowSelect("arw27159599",0)}'><div id="pdf_27159599" name="pdf_27159599"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=27159599"><b><span style="line-height:1.0;">COST EFFECTIVE MOBILE AND STATIC ROAD SIDE UNIT DEPLOYMENT FOR VEHICULAR ADHOC NETWORKS</span></b></a><br><font color=#00008f><i>Kim D., Velasco Y., Uma R.N., Yang Z., Wang W., Hussain R.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: 2016 International Conference on Computing, Networking and Communications, ICNC 2016.&nbsp;2016.  С. 7440590.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+6</td></tr>
+
+
+
+
+<tr valign=middle id="arw29477498">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3177.</b></font><br><input type=checkbox name="tid29477498" id="tid29477498"  onClick='if (this.checked) {RowSelect("arw29477498",1)} else {RowSelect("arw29477498",0)}'><div id="pdf_29477498" name="pdf_29477498"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29477498"><b><span style="line-height:1.0;">EVOLVING GRAPH COMPRESSION USING SIMILARITY MEASURES FOR BIOINFORMATICS APPLICATIONS</span></b></a><br><font color=#00008f><i>Brown J.A., Qu Q., Houghtent S., Collins T.K.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: CIBCB 2016 - Annual IEEE International Conference on Computational Intelligence in Bioinformatics and Computational Biology.&nbsp;13. 2016.  С. 7758126.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+6</td></tr>
+
+
+
+
+<tr valign=middle id="arw29479559">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3178.</b></font><br><input type=checkbox name="tid29479559" id="tid29479559"  onClick='if (this.checked) {RowSelect("arw29479559",1)} else {RowSelect("arw29479559",0)}'><div id="pdf_29479559" name="pdf_29479559"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29479559"><b><span style="line-height:1.0;">MULTIPLE WORLDS MODEL OF EVOLUTION FOR DEMOGRAPHIC APPROPRIATE RADIO PLAYLISTS</span></b></a><br><font color=#00008f><i>Brown J.A., Ashlock D.A.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: 2016 IEEE Symposium Series on Computational Intelligence, SSCI 2016.&nbsp;2016.  С. 7849964.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+1</td></tr>
+
+
+
+
+<tr valign=middle id="arw29480471">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3179.</b></font><br><input type=checkbox name="tid29480471" id="tid29480471"  onClick='if (this.checked) {RowSelect("arw29480471",1)} else {RowSelect("arw29480471",0)}'><div id="pdf_29480471" name="pdf_29480471"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29480471"><b><span style="line-height:1.0;">UNSUPERVISED GEOMETRICAL FEATURE LEARNING FROM HYPERSPECTRAL DATA</span></b></a><br><font color=#00008f><i>Ahmad M., Khan A.M., Hussain R., Protasov S., Chow F., Khattak A.M.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: 2016 IEEE Symposium Series on Computational Intelligence, SSCI 2016.&nbsp;2016.  С. 7850136.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+13</td></tr>
+
+
+
+
+<tr valign=middle id="arw27120261">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3180.</b></font><br><input type=checkbox name="tid27120261" id="tid27120261"  onClick='if (this.checked) {RowSelect("arw27120261",1)} else {RowSelect("arw27120261",0)}'><div id="pdf_27120261" name="pdf_27120261"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=27120261"><b><span style="line-height:1.0;">UNDERTAKING THE TOKENEER CHALLENGE IN EVENT-B</span></b></a><br><font color=#00008f><i>Rivera V., Cataño N., Bhattacharya S.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Proceedings - 4th FME Workshop on Formal Methods in Software Engineering, FormaliSE 2016.&nbsp;4. 2016.  С. 8-14.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+5</td></tr>
+
+
+
+
+<tr valign=middle id="arw27580615">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3181.</b></font><br><input type=checkbox name="tid27580615" id="tid27580615"  onClick='if (this.checked) {RowSelect("arw27580615",1)} else {RowSelect("arw27580615",0)}'><div id="pdf_27580615" name="pdf_27580615"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=27580615"><b><span style="line-height:1.0;">THE BIODYNAMO PROJECT: CREATING A PLATFORM FOR LARGE-SCALE REPRODUCIBLE BIOLOGICAL SIMULATIONS</span></b></a><br><font color=#00008f><i>Breitwieser L., Di Meglio A., Manca M., Rademakers F., Bauer R., Kaiser M., Mazzara M., Johard L., Talanov M.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: CEUR Workshop Proceedings.&nbsp;4. Сер. "Proceedings of the 4th Workshop on Sustainable Software for Science: Practice and Experiences, WSSSPE4 2016" 2016. 
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+7</td></tr>
+
+
+
+
+<tr valign=middle id="arw29474343">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3182.</b></font><br><input type=checkbox name="tid29474343" id="tid29474343"  onClick='if (this.checked) {RowSelect("arw29474343",1)} else {RowSelect("arw29474343",0)}'><div id="pdf_29474343" name="pdf_29474343"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29474343"><b><span style="line-height:1.0;">JOLIE COOG BUILDINGS: INTERNET OF THINGS FOR SMART BUILDING INFRASTRUCTURE SUPPORTING CONCURRENT APPS UTILIZING DISTIBUTED MICROSERVICES</span></b></a><br><font color=#00008f><i>Gusmanov K., Khanda K., Salikhov D., Mazzara M., Mavridis N.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: CEUR Workshop Proceedings.&nbsp;Selected Papers of the 1st International Scientific Conference Convergent Cognitive Information Technologies, Convergent 2016. 2016.  С. 200-207.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw29479655">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3183.</b></font><br><input type=checkbox name="tid29479655" id="tid29479655"  onClick='if (this.checked) {RowSelect("arw29479655",1)} else {RowSelect("arw29479655",0)}'><div id="pdf_29479655" name="pdf_29479655"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29479655"><b><span style="line-height:1.0;">SWING LEG TRAJECTORY OPTIMIZATION FOR A HUMANOID ROBOT LOCOMOTION</span></b></a><br><font color=#00008f><i>Khusainov R., Klimchik A., Magid E.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: ICINCO 2016 - Proceedings of the 13th International Conference on Informatics in Control, Automation and Robotics.&nbsp;2016.  С. 130-141.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+4</td></tr>
+
+
+
+
+<tr valign=middle id="arw27576823">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3184.</b></font><br><input type=checkbox name="tid27576823" id="tid27576823"  onClick='if (this.checked) {RowSelect("arw27576823",1)} else {RowSelect("arw27576823",0)}'><div id="pdf_27576823" name="pdf_27576823"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=27576823"><b><span style="line-height:1.0;">A MODEL FOR PREDICTING BUG FIXES IN OPEN SOURCE OPERATING SYSTEMS: AN EMPIRICAL STUDY</span></b></a><br><font color=#00008f><i>Ciancarini P., Sillitti A.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Proceedings of the International Conference on Software Engineering and Knowledge Engineering, SEKE.&nbsp;28. Сер. "Proceedings - SEKE 2016: 28th International Conference on Software Engineering and Knowledge Engineering" 2016.  С. 249-254.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+4</td></tr>
+
+
+
+
+<tr valign=middle id="arw27569807">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3185.</b></font><br><input type=checkbox name="tid27569807" id="tid27569807"  onClick='if (this.checked) {RowSelect("arw27569807",1)} else {RowSelect("arw27569807",0)}'><div id="pdf_27569807" name="pdf_27569807"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=27569807"><b><span style="line-height:1.0;">DATA-DRIVEN WORKFLOWS FOR MICROSERVICES: GENERICITY IN JOLIE</span></b></a><br><font color=#00008f><i>Safina L., Mazzara M., Rivera V., Montesi F.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Proceedings - International Conference on Advanced Information Networking and Applications, AINA.&nbsp;30. Сер. "Proceedings - IEEE 30th International Conference on Advanced Information Networking and Applications, IEEE AINA 2016" 2016.  С. 430-437.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+30</td></tr>
+
+
+
+
+<tr valign=middle id="arw29468836">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3186.</b></font><br><input type=checkbox name="tid29468836" id="tid29468836"  onClick='if (this.checked) {RowSelect("arw29468836",1)} else {RowSelect("arw29468836",0)}'><div id="pdf_29468836" name="pdf_29468836"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29468836"><b><span style="line-height:1.0;">MACHINING WITH SERIAL AND QUASI-SERIAL INDUSTRIAL ROBOTS: COMPARISON ANALYSIS AND ARCHITECTURE LIMITATIONS</span></b></a><br><font color=#00008f><i>Klimchik A., Magid E., Pashkevich A.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: IEEE International Conference on Intelligent Robots and Systems.&nbsp;Сер. "IROS 2016 - 2016 IEEE/RSJ International Conference on Intelligent Robots and Systems" 2016.  С. 252-259.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+3</td></tr>
+
+
+
+
+<tr valign=middle id="arw27101104">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3187.</b></font><br><input type=checkbox name="tid27101104" id="tid27101104"  onClick='if (this.checked) {RowSelect("arw27101104",1)} else {RowSelect("arw27101104",0)}'><div id="pdf_27101104" name="pdf_27101104"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=27101104"><b><span style="line-height:1.0;">ROLL: FAST IN-MEMORY GENERATION OF GIGANTIC SCALE-FREE NETWORKS</span></b></a><br><font color=#00008f><i>Hadian A., Minaei-Bidgoli B., Nobari S., Qu Q.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Proceedings of the ACM SIGMOD International Conference on Management of Data.&nbsp;Сер. "SIGMOD 2016 - Proceedings of the 2016 International Conference on Management of Data" 2016.  С. 1829-1842.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+14</td></tr>
+
+
+
+
+<tr valign=middle id="arw27140232">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3188.</b></font><br><input type=checkbox name="tid27140232" id="tid27140232"  onClick='if (this.checked) {RowSelect("arw27140232",1)} else {RowSelect("arw27140232",0)}'><div id="pdf_27140232" name="pdf_27140232"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=27140232"><b><span style="line-height:1.0;">REVERSE ENGINEERING: A EUROPEAN IPR PERSPECTIVE</span></b></a><br><font color=#00008f><i>Ciancarini P., Russo D., Sillitti A., Succi G.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Proceedings of the ACM Symposium on Applied Computing.&nbsp;31. Сер. "2016 Symposium on Applied Computing, SAC 2016" 2016.  С. 1498-1503.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+11</td></tr>
+
+
+
+
+<tr valign=middle id="arw29488205">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3189.</b></font><br><input type=checkbox name="tid29488205" id="tid29488205"  onClick='if (this.checked) {RowSelect("arw29488205",1)} else {RowSelect("arw29488205",0)}'><div id="pdf_29488205" name="pdf_29488205"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29488205"><b><span style="line-height:1.0;">THE RELATIONAL MODEL IS INJECTIVE FOR MULTIPLICATIVE EXPONENTIAL LINEAR LOGIC</span></b></a><br><font color=#00008f><i>De Carvalho D.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Leibniz International Proceedings in Informatics, LIPIcs.&nbsp;25. Сер. "Computer Science Logic 2016, CSL 2016" 2016. 
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+13</td></tr>
+
+
+
+
+<tr valign=middle id="arw27574699">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3190.</b></font><br><input type=checkbox name="tid27574699" id="tid27574699"  onClick='if (this.checked) {RowSelect("arw27574699",1)} else {RowSelect("arw27574699",0)}'><div id="pdf_27574699" name="pdf_27574699"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=27574699"><b><span style="line-height:1.0;">STIFFNESS OF SERIAL AND QUASI-SERIAL MANIPULATORS: COMPARISON ANALYSIS</span></b></a><br><font color=#00008f><i>Klimchik A., Magid E., Caro S., Pashkevich A., Waiyakan K.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: MATEC Web of Conferences.&nbsp;1. Сер. "2016 International Conference on Measurement Instrumentation and Electronics, ICMIE 2016" 2016.  С. 02003.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+3</td></tr>
+
+
+
+
+<tr valign=middle id="arw27576053">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3191.</b></font><br><input type=checkbox name="tid27576053" id="tid27576053"  onClick='if (this.checked) {RowSelect("arw27576053",1)} else {RowSelect("arw27576053",0)}'><div id="pdf_27576053" name="pdf_27576053"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=27576053"><b><span style="line-height:1.0;">MODELLING OF DYNAMICALLY STABLE AR-601M ROBOT LOCOMOTION IN SIMULINK</span></b></a><br><font color=#00008f><i>Khusainov R., Sagitov A., Klimchik A., Magid E.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: MATEC Web of Conferences.&nbsp;1. Сер. "2016 International Conference on Measurement Instrumentation and Electronics, ICMIE 2016" 2016.  С. 09004.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+6</td></tr>
+
+
+
+
+<tr valign=middle id="arw27576322">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3192.</b></font><br><input type=checkbox name="tid27576322" id="tid27576322"  onClick='if (this.checked) {RowSelect("arw27576322",1)} else {RowSelect("arw27576322",0)}'><div id="pdf_27576322" name="pdf_27576322"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=27576322"><b><span style="line-height:1.0;">GOLF CART PROTOTYPE DEVELOPMENT AND NAVIGATION SIMULATION USING ROS AND GAZEBO</span></b></a><br><font color=#00008f><i>Shimchik I., Sagitov A., Afanasyev I., Magid E., Matsuno F.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: MATEC Web of Conferences.&nbsp;1. Сер. "2016 International Conference on Measurement Instrumentation and Electronics, ICMIE 2016" 2016.  С. 09005.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+27</td></tr>
+
+
+
+
+<tr valign=middle id="arw27569534">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3193.</b></font><br><input type=checkbox name="tid27569534" id="tid27569534"  onClick='if (this.checked) {RowSelect("arw27569534",1)} else {RowSelect("arw27569534",0)}'><div id="pdf_27569534" name="pdf_27569534"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=27569534"><b><span style="line-height:1.0;">APPLICATION OF INFORMATION PROCESSES APPLICATIVE MODELLING TO VIRTUAL MACHINES AUTO CONFIGURATION</span></b></a><br><font color=#00008f><i>Zykov S., Shumsky L.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Procedia Computer Science.&nbsp;20th. Сер. "20th International Conference on Knowledge Based and Intelligent Information and Engineering Systems, KES 2016" 2016.  С. 1041-1048.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+6</td></tr>
+
+
+
+
+<tr valign=middle id="arw27569510">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3194.</b></font><br><input type=checkbox name="tid27569510" id="tid27569510"  onClick='if (this.checked) {RowSelect("arw27569510",1)} else {RowSelect("arw27569510",0)}'><div id="pdf_27569510" name="pdf_27569510"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=27569510"><b><span style="line-height:1.0;">TYPE-THEORETIC MEANS FOR QUERYING HETEROGENEOUS DATA SOURCES AVAILABLE VIA CLOUD APIS</span></b></a><br><font color=#00008f><i>Domracheva A.I., Shapkin P.A.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Procedia Computer Science.&nbsp;20th. Сер. "20th International Conference on Knowledge Based and Intelligent Information and Engineering Systems, KES 2016" 2016.  С. 951-960.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw27569469">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3195.</b></font><br><input type=checkbox name="tid27569469" id="tid27569469"  onClick='if (this.checked) {RowSelect("arw27569469",1)} else {RowSelect("arw27569469",0)}'><div id="pdf_27569469" name="pdf_27569469"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=27569469"><b><span style="line-height:1.0;">A DYNAMIC EDITOR OF TYPED DATA TRANSFORMATIONS</span></b></a><br><font color=#00008f><i>Ruban S.I., Shapkin P.A., Zykov S.V.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Procedia Computer Science.&nbsp;20th. Сер. "20th International Conference on Knowledge Based and Intelligent Information and Engineering Systems, KES 2016" 2016.  С. 961-967.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw29499887">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3196.</b></font><br><input type=checkbox name="tid29499887" id="tid29499887"  onClick='if (this.checked) {RowSelect("arw29499887",1)} else {RowSelect("arw29499887",0)}'><div id="pdf_29499887" name="pdf_29499887"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29499887"><b><span style="line-height:1.0;">3D MODELLING AND SIMULATION OF A CRAWLER ROBOT IN ROS/GAZEBO</span></b></a><br><font color=#00008f><i>Sokolov M., Gabdullin A., Afanasyev I., Lavrenov R., Magid E.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: ACM International Conference Proceeding Series.&nbsp;4. Сер. "Proceedings of the 4th International Conference on Control, Mechatronics and Automation, ICCMA 2016" 2016.  С. 61-65.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+33</td></tr>
+
+
+
+
+<tr valign=middle id="arw29794236">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3197.</b></font><br><input type=checkbox name="tid29794236" id="tid29794236"  onClick='if (this.checked) {RowSelect("arw29794236",1)} else {RowSelect("arw29794236",0)}'><div id="pdf_29794236" name="pdf_29794236"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29794236"><b><span style="line-height:1.0;">БИОМЕХАНИЧЕСКИЙ АНАЛИЗ ДВИЖЕНИЙЧЕЛОВЕКА В РАБОЧЕЙ ЗОНЕ С ПОМОЩЬЮ БЕЗМАРКЕРНОЙ СИСТЕМЫ ЗАХВАТА ДВИЖЕНИЯ НА БАЗЕ СЕНСОРОВ КИНЕКТ</span></b></a><br><font color=#00008f><i>Данилов И.Ю., Габбасов Б.Н., Афанасьев И.М.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Инновационные машиностроительные технологии, оборудование и материалы - 2016 (МНТК "ИМТОМ-2016").&nbsp;Материалы Международной научно-технической конференции. 2016.  С. 230-236.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw29794246">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3198.</b></font><br><input type=checkbox name="tid29794246" id="tid29794246"  onClick='if (this.checked) {RowSelect("arw29794246",1)} else {RowSelect("arw29794246",0)}'><div id="pdf_29794246" name="pdf_29794246"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29794246"><b><span style="line-height:1.0;">ОПТИМИЗАЦИЯ ПРИМИТИВОВ ДЛЯ ХОДЬБЫ БИПЕДАЛЬНЫХ РОБОТОВ</span></b></a><br><font color=#00008f><i>Хусаинов Р.Р., Климчик А.С., Магид Е.А.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Инновационные машиностроительные технологии, оборудование и материалы - 2016 (МНТК "ИМТОМ-2016").&nbsp;Материалы Международной научно-технической конференции. 2016.  С. 271-274.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw29794248">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3199.</b></font><br><input type=checkbox name="tid29794248" id="tid29794248"  onClick='if (this.checked) {RowSelect("arw29794248",1)} else {RowSelect("arw29794248",0)}'><div id="pdf_29794248" name="pdf_29794248"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=29794248"><b><span style="line-height:1.0;">МОДЕЛЬ СИСТЕМЫ УПРАВЛЕНИЯ БИПЕДАЛЬНОГО РОБОТА, ОСНОВАННАЯ НА ТОЧКЕ НУЛЕВОГО МОМЕНТА</span></b></a><br><font color=#00008f><i>Хусаинов Р.Р., Климчик А.С., Магид Е.А.</i></font><br>
+<font color=#00008f>
+
+
+ В сборнике: Инновационные машиностроительные технологии, оборудование и материалы - 2016 (МНТК "ИМТОМ-2016").&nbsp;Материалы Международной научно-технической конференции. 2016.  С. 275-278.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+0</td></tr>
+
+
+
+
+<tr valign=middle id="arw27590125">
+<td align=center valign=top class="select-tr-left"><font color=#00008f><b>3200.</b></font><br><input type=checkbox name="tid27590125" id="tid27590125"  onClick='if (this.checked) {RowSelect("arw27590125",1)} else {RowSelect("arw27590125",0)}'><div id="pdf_27590125" name="pdf_27590125"></div></td>
+<td align=left valign=top>
+<span style="overflow-wrap: break-word;">
+
+<a href="/item.asp?id=27590125"><b><span style="line-height:1.0;">HEAVY TAILS AND COPULAS: LIMITS OF DIVERSIFICATION REVISITED</span></b></a><br><font color=#00008f><i>Ibragimov R., Prokhorov A.</i></font><br>
+<font color=#00008f>
+
+
+<a href="/contents.asp?id=34343374">Economics Letters</a>. 
+2016. Т. 149.  С. 102-107.
+</span>
+</td><td align=center valign=middle class="select-tr-right">
+14</td></tr>
+
+
+
+</table>
+
+
+<div style="width:578px; height:24px; border:#7f9db9 1px solid;padding:0;margin:20px 0 0 0; text-align:left; border-radius: 12px;" id="pages">
+<table width=578 height=24 cellspacing=1 cellpadding=3 border=0>
+<tr align=center valign=middle class="menurb">
+<td width=15% nowrap><a href="javascript:goto_page(1)">В&nbsp;начало</a></td>
+<td width=10% class="mouse-hovergr" nowrap><a title="Предыдущая страница" href="javascript:goto_page(31)">&lt;&lt;</a></td>
+
+<td width=5% class="mouse-hovergr" bgcolor=#f5f5f5 nowrap><a href="javascript:goto_page(25)">25</a></td>
+
+<td width=5% class="mouse-hovergr" bgcolor=#f5f5f5 nowrap><a href="javascript:goto_page(26)">26</a></td>
+
+<td width=5% class="mouse-hovergr" bgcolor=#f5f5f5 nowrap><a href="javascript:goto_page(27)">27</a></td>
+
+<td width=5% class="mouse-hovergr" bgcolor=#f5f5f5 nowrap><a href="javascript:goto_page(28)">28</a></td>
+
+<td width=5% class="mouse-hovergr" bgcolor=#f5f5f5 nowrap><a href="javascript:goto_page(29)">29</a></td>
+
+<td width=5% class="mouse-hovergr" bgcolor=#f5f5f5 nowrap><a href="javascript:goto_page(30)">30</a></td>
+
+<td width=5% class="mouse-hovergr" bgcolor=#f5f5f5 nowrap><a href="javascript:goto_page(31)">31</a></td>
+
+<td width=5% class="mouse-hovergr" bgcolor=#e8e8e8 nowrap><font color=#F26C4F>32</font></td>
+
+<td width=5% class="mouse-hovergr" bgcolor=#f5f5f5 nowrap><a href="javascript:goto_page(33)">33</a></td>
+
+<td width=5% class="mouse-hovergr" bgcolor=#f5f5f5 nowrap><a href="javascript:goto_page(34)">34</a></td>
+
+<td width=10% class="mouse-hovergr" nowrap><a title="Следующая страница" href="javascript:goto_page(33)">&gt;&gt;</a></td>
+<td width=15% nowrap><a href="javascript:goto_page(34)">В&nbsp;конец</a></td>
+</tr>
+</table>
+</div>
+
+<br>
+</td></tr></table>
+
+</td>
+<td align=right valign=top>
+
+<div id="panel_default" style="position: relative; width: 200px; height:0; margin: 0; border: 1px; padding: 0"></div>
+<div id="panel" style="position: relative; width: 200px; margin: 0; border: 0; padding: 0">
+
+<div style="width: 190px;" class="right-panel">
+
+<table width=190 cellspacing=0 cellpadding=3 border=0>
+
+<tr><td colspan=2 align=center valign=top><font color=#F26C4F><b>ИНСТРУМЕНТЫ</b></font><br><img src="/pic/1pix.gif" vspace=1><br></td></tr>
+
+
+<tr><td width=15% align=right valign=top>
+<a href="javascript:goto_page(33)"><img src="images/but_orange.gif" width=15 height=15 hspace=3 border=0></a></td>
+<td width=85% align=left valign=middle><a href="javascript:goto_page(33)">Следующая страница</a>
+</td></tr>
+
+<tr><td width=15% align=right valign=top>
+<a href="javascript:goto_page(31)"><img src="images/but_orange.gif" width=15 height=15 hspace=3 border=0></a></td>
+<td width=85% align=left valign=middle><a href="javascript:goto_page(31)">Предыдущая страница</a>
+</td></tr>
+<tr><td colspan=2><img src="/pic/1pix.gif" vspace=5><br></td></tr>
+
+<tr><td width=15% align=right valign=top>
+<a href="javascript:select_all()"><img src="images/but_orange.gif" width=15 height=15 hspace=3 border=0></a></td>
+<td width=85% align=left valign=middle><a href="javascript:select_all()">Выделить все публикации на этой странице</a>
+</td></tr>
+<tr><td width=15% align=right valign=top>
+<a href="javascript:deselect_all()"><img src="images/but_orange.gif" width=15 height=15 hspace=3 border=0></a></td>
+<td width=85% align=left valign=middle><a href="javascript:deselect_all()">Снять выделение</a>
+</td></tr>
+
+<tr><td colspan=2><img src="/pic/1pix.gif" vspace=5><br></td></tr>
+<tr><td width=15% align=right valign=top>
+<a href="javascript:itembox_add()"><img src="images/but_orange.gif" width=15 height=15 hspace=3 border=0></a></td>
+<td width=85% align=left valign=middle><a href="javascript:itembox_add()">Добавить выделенные публикации в подборку:</a></td></tr>
+
+<tr><td colspan=2 align=center><div class="formfr"><select name="itemboxid" style="width:180px" class="input">
+
+<option value="0" selected>Новая подборка
+</select></div>&nbsp;</td></tr>
+
+<tr><td width=15% align=right valign=top>
+<a href="javascript:itembox_add_all()"><img src="images/but_orange.gif" width=15 height=15 hspace=3 border=0></a></td>
+<td width=85% align=left valign=middle><a href="javascript:itembox_add_all()">Добавить все публикации организации в указанную выше подборку</a></td></tr>
+
+<tr><td colspan=2><img src="/pic/1pix.gif" vspace=5><br></td></tr>
+<tr><td width=15% align=right valign=top>
+<a href="cit_org_items.asp?id=14346&orgdepid=0"><img src="images/but_orange.gif" width=15 height=15 hspace=3 border=0></a></td>
+<td width=85% align=left valign=middle><a href="cit_org_items.asp?id=14346&orgdepid=0">Список публикаций, цитирующих публикации организации</a>
+</td></tr>
+
+<tr><td width=15% align=right valign=top>
+<a href="org_profile.asp?id=14346"><img src="/pic/stat.gif" width=12 height=13 hspace=4 border=0></a></td>
+<td width=85% align=left valign=middle><a href="org_profile.asp?id=14346">Анализ публикационной активности организации</a>
+</td></tr>
+
+
+
+</table>
+</div>
+
+</div>
+
+</td></tr></table>
+</td></tr></table>
+</FORM>
+
+<SCRIPT LANGUAGE="JavaScript">
+
+$(function() {
+$(".help").tooltip({
+	position: "top right",
+	offset: [-15, -100],
+	effect: "fade", 
+	fadeInSpeed: 400, 
+	fadeOutSpeed: 400, 
+	delay: 400,  
+	predelay: 400,
+	opacity: 1.0
+});
+});
+</script>
+
+
+<br><br>
+<table width=970 height=40 border=0 cellpadding=0 cellspacing=0 id="footer">
+<tr align=center valign=middle class="menug">
+<td width=15% valign="bottom">
+
+</td>
+<td width=70%><font color=#00008f><span style="position: relative; top: 3px; right: 15px; color: #F26C4F;">*</span><a href="/copyright.asp">&copy; 2000-2025 ООО НАУЧНАЯ ЭЛЕКТРОННАЯ БИБЛИОТЕКА. Все права защищены</a></font><span style="position: relative; top: 3px; left: 15px; color: #F26C4F;">*</span></td>
+<td width=15% valign="bottom">
+
+</td>
+</tr></table>
+
+<!-- Yandex.Metrika -->
+<div style="display:none;"><script type="text/javascript">
+(function(w, c) {
+    (w[c] = w[c] || []).push(function() {
+        try {
+            w.yaCounter171463 = new Ya.Metrika(171463);
+        } catch(e) {}
+    });
+})(window, 'yandex_metrika_callbacks');
+</script></div>
+<script src="//mc.yandex.ru/metrika/watch.js" type="text/javascript" defer="defer"></script>
+<noscript><div style="position:absolute"><img src="//mc.yandex.ru/watch/171463" alt="" /></div></noscript>
+<!-- /Yandex.Metrika -->
+
+
+
+
+<br><br><br>
+</td></tr></table>
+</html>
