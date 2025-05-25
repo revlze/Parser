@@ -1,45 +1,54 @@
 import pandas as pd
-from rapidfuzz import process, fuzz
 import itertools
+import re
+from collections import defaultdict
+from rapidfuzz import fuzz
 
-csv_path = "org_data/processed/14346/publications.csv"
-df = pd.read_csv(csv_path)
+# === Конфигурация ===
+CSV_PATH = "org_data/processed/14346/publications.csv"
+FUZZ_THRESHOLD = 90  # чувствительность сравнения
 
-# Сбор и очистка авторов
-all_authors = df['Authors'].dropna().tolist()
-author_list = list(itertools.chain.from_iterable(a.split(';') for a in all_authors))
-author_list = list(set(a.strip() for a in author_list if a.strip()))
+# === Утилиты ===
 
-# Функция для разбиения на фамилию и инициалы
-def split_name(full_name):
-    parts = full_name.strip().split()
-    if len(parts) >= 2:
-        return parts[0], parts[1]  # Фамилия, инициалы
-    else:
-        return parts[0], ''  # На случай "Марков"
+def extract_last_name(full_name: str) -> str:
+    """Оставляет только фамилию (первое слово)"""
+    return re.split(r'\s+', full_name.strip())[0].lower()
 
-seen_pairs = set()
+def normalize(name: str) -> str:
+    """Удаление точек, пробелов и приведение к нижнему регистру"""
+    return re.sub(r'[.\s]', '', name.lower())
+
+# === Загрузка и подготовка данных ===
+
+df = pd.read_csv(CSV_PATH)
+authors_raw = df['Authors'].dropna().tolist()
+all_authors = list(itertools.chain.from_iterable(a.split(';') for a in authors_raw))
+all_authors = sorted(set(a.strip() for a in all_authors if a.strip()))
+
+# === Группировка по фамилии ===
+
+# Сопоставим фамилии → полные формы
+lastname_to_fullnames = defaultdict(set)
+for full in all_authors:
+    lname = extract_last_name(full)
+    lastname_to_fullnames[lname].add(full)
+
+# Построим пары на основе схожих фамилий
 pairs = []
+lastnames = sorted(lastname_to_fullnames.keys())
 
-for author in author_list:
-    matches = process.extract(author, author_list, scorer=fuzz.ratio, limit=10)
-    for match, score, _ in matches:
-        if match == author or score <= 92:
-            continue
+for i, lname1 in enumerate(lastnames):
+    for lname2 in lastnames[i+1:]:
+        sim = fuzz.ratio(lname1, lname2)
+        if sim >= FUZZ_THRESHOLD:
+            # Добавим все комбинации между полными именами
+            for f1 in lastname_to_fullnames[lname1]:
+                for f2 in lastname_to_fullnames[lname2]:
+                    if f1 != f2:
+                        pairs.append({'Label': f2, 'Replace by': f1})
 
-        fam1, init1 = split_name(author)
-        fam2, init2 = split_name(match)
+# === Создание и сохранение файла ===
 
-        # Добавляем только если фамилия совпадает, но инициалы (строго) тоже совпадают
-        if fam1 == fam2 and init1 != init2:
-            continue  # Имена разные — не добавляем
-
-        a1, a2 = sorted([author, match])
-        if (a1, a2) not in seen_pairs:
-            seen_pairs.add((a1, a2))
-            pairs.append({"Автор": a1, "Похожие варианты": a2, "Сходство": score})
-
-# Сохраняем
-similar_df = pd.DataFrame(pairs)
-similar_df.to_csv("similar_authors_filtered.csv", index=False, encoding='utf-8')
-print("Сохранено в similar_authors_filtered.csv с фильтрацией по инициалам")
+df_out = pd.DataFrame(pairs).drop_duplicates()
+df_out.to_csv("thesaurus_authors_cleaned.csv", index=False, encoding='utf-8-sig')
+print(f"Готово. Сохранено {len(df_out)} строк в thesaurus_authors_cleaned.csv")
