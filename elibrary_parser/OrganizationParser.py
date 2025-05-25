@@ -69,7 +69,7 @@ class ParserOrg:
         profile = webdriver.FirefoxProfile()
         profile.set_preference("general.useragent.override", new_useragent)
         options = Options()
-        options.headless = True
+        options.headless = False
 
         self.driver = webdriver.Firefox(
             profile, executable_path=self.DRIVER_PATH, options=options)
@@ -97,28 +97,30 @@ class ParserOrg:
         
         self.bypass_block_if_present()
         
-        print("Choosing years...")
-        try:
-            self.driver.find_element(By.XPATH, '//*[@id="hdr_years"]').click()
-            time.sleep(5)
-        except Exception as e:
-            print("Failed to open year selection:", e)
-
-        for year in range(self.date_from, self.date_to + 1):
-            xpath = f'//*[@id="year_{year}"]'
+        # Write 9999 in the script in the years field if you don't need this filter
+        if (self.data_from != 9999 and self.data_to != 9999):
+            print("Choosing years...")
             try:
-                element = WebDriverWait(self.driver, 2).until(
-                    EC.element_to_be_clickable((By.XPATH, xpath)))
-                self.driver.execute_script("arguments[0].click();", element)
-                print("Selected year:", year)
-            except Exception:
-                print(f"Can't load the year selection or no publications for: {year} year!")
+                self.driver.find_element(By.XPATH, '//*[@id="hdr_years"]').click()
+                time.sleep(5)
+            except Exception as e:
+                print("Failed to open year selection:", e)
+
+            for year in range(self.date_from, self.date_to + 1):
+                xpath = f'//*[@id="year_{year}"]'
+                try:
+                    element = WebDriverWait(self.driver, 2).until(
+                        EC.element_to_be_clickable((By.XPATH, xpath)))
+                    self.driver.execute_script("arguments[0].click();", element)
+                    print("Selected year:", year)
+                except Exception:
+                    print(f"Can't load the year selection or no publications for: {year} year!")
 
 
-        # Click "search" button
-        self.driver.find_element(By.XPATH, '//td[6]/div').click() # TODO: remove hardcoded index
-
-        self.bypass_block_if_present()
+            #Click "search" button
+            self.driver.find_element(By.XPATH, '//td[6]/div').click() # TODO: remove hardcoded index
+            
+            
         page_number = 1
         while True:
             with open(self.files_dir / f"page_{page_number}.html", 'a', encoding='utf-8') as f:
@@ -126,10 +128,9 @@ class ParserOrg:
             print(f"Saved page: {page_number}.")
 
             try:
+                self.bypass_block_if_present()
                 self.driver.find_element(
                     By.LINK_TEXT, 'Следующая страница').click()
-                
-                self.bypass_block_if_present()
                 
                 page_number += 1
                 sleep_seconds = random.randint(10, 20)
@@ -158,7 +159,7 @@ class ParserOrg:
         """
         
         span = cell.find_all('span', style="line-height:1.0;")
-        return span[0].text if span else OrganizationParser.missing_value
+        return span[0].text if span else ParserOrg.missing_value
 
     @staticmethod
     def get_authors(cell: bs4.element.ResultSet) -> str:
@@ -166,21 +167,21 @@ class ParserOrg:
         
         font = cell.find_all('font', color="#00008f")
         if not font:
-            return OrganizationParser.missing_value
+            return ParserOrg.missing_value
         italic = font[0].find_all('i')
-        return translit(italic[0].text.replace(',', ';'), 'ru') if italic else OrganizationParser.missing_value
+        return translit(italic[0].text.replace(',', ';'), 'ru') if italic else ParserOrg.missing_value
 
     @staticmethod
     def get_info(cell: bs4.element.ResultSet) -> str:
         """Get journal info from an HTML page box"""
         
         if not cell:
-            return OrganizationParser.missing_value
+            return ParserOrg.missing_value
         
         fonts = cell.find_all("font", color="#00008f")
 
         if len(fonts) < 2:
-            return OrganizationParser.missing_value
+            return ParserOrg.missing_value
         
         biblio_info = fonts[1].get_text(strip=True)
         biblio_info = biblio_info.replace('\xa0', ' ').replace('\r\n', ' ').replace('\n', ' ')
@@ -192,7 +193,7 @@ class ParserOrg:
         
         links = cell.find_all('a')
         if not links:
-            return OrganizationParser.missing_value
+            return ParserOrg.missing_value
         
         return 'https://www.elibrary.ru/' + links[0].get('href')
     
