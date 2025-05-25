@@ -14,7 +14,6 @@ from selenium.webdriver.common.by import By
 
 from elibrary_parser import config
 from elibrary_parser.types import Publication
-from transliterate import translit
 
 class ParserOrg:
     """Class for loading and processing publications by eLibrary authors
@@ -169,7 +168,7 @@ class ParserOrg:
         if not font:
             return ParserOrg.missing_value
         italic = font[0].find_all('i')
-        return translit(italic[0].text.replace(',', ';'), 'ru') if italic else ParserOrg.missing_value
+        return italic[0].text.replace(',', ';').lower() if italic else ParserOrg.missing_value
 
     @staticmethod
     def get_info(cell: bs4.element.ResultSet) -> str:
