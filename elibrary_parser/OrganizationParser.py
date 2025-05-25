@@ -68,7 +68,7 @@ class ParserOrg:
         profile = webdriver.FirefoxProfile()
         profile.set_preference("general.useragent.override", new_useragent)
         options = Options()
-        options.headless = False
+        options.headless = True
 
         self.driver = webdriver.Firefox(
             profile, executable_path=self.DRIVER_PATH, options=options)
@@ -168,7 +168,7 @@ class ParserOrg:
         if not font:
             return ParserOrg.missing_value
         italic = font[0].find_all('i')
-        return italic[0].text.replace(',', ';').lower() if italic else ParserOrg.missing_value
+        return italic[0].text.replace(',', ';') if italic else ParserOrg.missing_value
 
     @staticmethod
     def get_info(cell: bs4.element.ResultSet) -> str:
@@ -226,7 +226,7 @@ class ParserOrg:
                 self.publications.append(pub)
 
         
-    # Authors,Title,Year,Source title,Cited by
+    # Authors,Title,Year,Source title,Cited by,Link
     def save_publications_to_csv(self):
         """Save organization's publications to a csv-file"""
         
@@ -236,10 +236,10 @@ class ParserOrg:
 
         with open(csv_path, 'w', encoding='utf-8', newline='') as csvfile:
             writer = csv.writer(csvfile, delimiter=',')
-            writer.writerow(["Authors", "Title", "Year", "Source title", "Cited by"])
+            writer.writerow(["Authors", "Title", "Year", "Source title", "Cited by", "Link"])
             for pub in self.publications:
                 writer.writerow([
-                    pub.authors, pub.title, pub.year, pub.info, pub.cited_by
+                    pub.authors, pub.title, pub.year, pub.info, pub.cited_by, pub.link
                 ])
                 
                 
