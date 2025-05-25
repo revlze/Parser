@@ -1,45 +1,89 @@
 import pandas as pd
-from rapidfuzz import process, fuzz
-import itertools
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from transliterate import translit
 
-csv_path = "org_data/processed/14346/publications.csv"
-df = pd.read_csv(csv_path)
+INPUT_FILE = "org_data/processed/14346/publications.csv"
+OUTPUT_FILE = "org_data/processed/14346/thesaurus_authors.txt"
+SIMILARITY_COEFFICIENT = 0.8  # можно изменить
+SURNAME_DIFF = 3  # можно изменить
 
-# Сбор и очистка авторов
-all_authors = df['Authors'].dropna().tolist()
-author_list = list(itertools.chain.from_iterable(a.split(';') for a in all_authors))
-author_list = list(set(a.strip() for a in author_list if a.strip()))
+print("Загрузка данных...")
+df = pd.read_csv(INPUT_FILE)
 
-# Функция для разбиения на фамилию и инициалы
-def split_name(full_name):
-    parts = full_name.strip().split()
-    if len(parts) >= 2:
-        return parts[0], parts[1]  # Фамилия, инициалы
-    else:
-        return parts[0], ''  # На случай "Марков"
+print("Обработка авторов...")
+authors = df['Authors'].dropna()
+authors = authors.str.split('; ').explode()
+authors = authors.drop_duplicates().reset_index(drop=True)
 
-seen_pairs = set()
-pairs = []
+X = pd.DataFrame({'Authors': authors})
+X['Ready'] = authors.str.lower().str.replace(r'[^а-яa-z .]', '', regex=True)
 
-for author in author_list:
-    matches = process.extract(author, author_list, scorer=fuzz.ratio, limit=10)
-    for match, score, _ in matches:
-        if match == author or score <= 92:
+def transliterate_name(name):
+    if len(name) > 0:
+        if name[-1] == '.':
+            name = name[:-1]
+        arr = name.split()
+        name = arr[0] + ' ' + ''.join(arr[1:])
+    return translit(name, 'ru', reversed=True)
+
+X['Ready'] = X['Ready'].apply(transliterate_name)
+
+# Разделение фамилии и инициалов
+X['Surnames'] = X['Ready'].apply(lambda x: x.split()[0] if len(x.split()) > 0 else '')
+X['Initials'] = X['Ready'].apply(lambda x: x.split()[1] if len(x.split()) > 1 else '')
+
+# Алгоритм поиска похожих фамилий
+print("Поиск похожих фамилий...")
+vectorizer = TfidfVectorizer(analyzer='char', ngram_range=(1, 2))  # ngram_range можно изменить
+matrix = vectorizer.fit_transform(X['Surnames'])
+similarity = cosine_similarity(matrix)
+
+# Сборка тезауруса
+print("Сборка тезауруса...")
+thesaurus = {}
+total = len(similarity)
+
+for i in range(total):
+    if X['Authors'][i] in thesaurus:
+        continue
+        
+    if (i + 1) % 100 == 0:
+        print(f"Обработано: {i+1}/{total}")
+        
+    for j in range(i+1, total):
+        if X['Authors'][j] in thesaurus:
             continue
+            
+        if similarity[i][j] < SIMILARITY_COEFFICIENT:
+            continue
+            
+        # Проверка инициалов
+        initials1 = X['Initials'][i].split('.')
+        initials2 = X['Initials'][j].split('.')
+        
+        if len(initials1) != len(initials2):
+            shorter, longer = sorted([initials1, initials2], key=len)
+            if shorter != longer[:len(shorter)]:
+                continue
+        elif initials1 != initials2:
+            continue
+            
+        # Проверка фамилий
+        surname1, surname2 = X['Surnames'][i], X['Surnames'][j]
+        if abs(len(surname1) - len(surname2)) > SURNAME_DIFF:
+            continue
+            
+        if (surname1[-1] == 'a') ^ (surname2[-1] == 'a'):  # XOR для проверки мужская/женская фамилия
+            continue
+            
+        thesaurus[X['Authors'][j]] = X['Authors'][i]
 
-        fam1, init1 = split_name(author)
-        fam2, init2 = split_name(match)
+# Сохранение
+print("Сохранение в файл...")
+with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
+    f.write("Label\tReplace by\n")
+    for label, replace_by in thesaurus.items():
+        f.write(f"{label}\t{replace_by}\n")
 
-        # Добавляем только если фамилия совпадает, но инициалы (строго) тоже совпадают
-        if fam1 == fam2 and init1 != init2:
-            continue  # Имена разные — не добавляем
-
-        a1, a2 = sorted([author, match])
-        if (a1, a2) not in seen_pairs:
-            seen_pairs.add((a1, a2))
-            pairs.append({"Автор": a1, "Похожие варианты": a2, "Сходство": score})
-
-# Сохраняем
-similar_df = pd.DataFrame(pairs)
-similar_df.to_csv("similar_authors_filtered.csv", index=False, encoding='utf-8')
-print("Сохранено в similar_authors_filtered.csv с фильтрацией по инициалам")
+print("Готово! Результаты сохранены в", OUTPUT_FILE)
