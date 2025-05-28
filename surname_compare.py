@@ -5,7 +5,7 @@ from transliterate import translit
 
 INPUT_FILE = "org_data/processed/14346/publications.csv"
 OUTPUT_FILE = "org_data/processed/14346/thesaurus_authors.txt"
-SIMILARITY_COEFFICIENT = 0.8  # можно изменить
+SIMILARITY_COEFFICIENT = 0.8  # можно изменить коэффициент допуска
 SURNAME_DIFF = 3  # можно изменить
 
 print("Загрузка данных...")
