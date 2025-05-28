@@ -3,6 +3,7 @@ import random
 import time
 import csv
 import bs4
+import re
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -47,11 +48,9 @@ class ParserOrg:
     DRIVER_PATH = config.DRIVER_PATH
     missing_value = '-'
 
-    def __init__(self, org_id: str, data_path: str, date_from: int, date_to: int):
+    def __init__(self, org_id: str, data_path: str):
         self.org_id = org_id
         self.data_path = Path(data_path)
-        self.date_from = date_from
-        self.date_to = date_to
         self.driver = None
         self.files_dir = None
         self.publications = []
@@ -68,7 +67,7 @@ class ParserOrg:
         profile = webdriver.FirefoxProfile()
         profile.set_preference("general.useragent.override", new_useragent)
         options = Options()
-        options.headless = True
+        options.headless = False
 
         self.driver = webdriver.Firefox(
             profile, executable_path=self.DRIVER_PATH, options=options)
@@ -81,7 +80,7 @@ class ParserOrg:
 
         self.files_dir = self.data_path / "raw" / self.org_id
         print("Organization directory:", self.files_dir.absolute())
-        self.files_dir.mkdir(exist_ok=True, parents=True)
+        self.files_dir.mkdir(exist_ok=True, parents=True) 
 
     def find_publications(self):
         """Gets the web-page with chosen years and chosen...(will be added soon)"""
@@ -91,33 +90,14 @@ class ParserOrg:
         
         print("Wait, getting organization page...(about 1 min)")
         self.driver.get(org_page_url)
-        time.sleep(60)
         print("Done.")
         
         self.bypass_block_if_present()
         
-        # Write 9999 in the script in the years field if you don't need this filter
-        if (self.data_from != 9999 and self.data_to != 9999):
-            print("Choosing years...")
-            try:
-                self.driver.find_element(By.XPATH, '//*[@id="hdr_years"]').click()
-                time.sleep(5)
-            except Exception as e:
-                print("Failed to open year selection:", e)
-
-            for year in range(self.date_from, self.date_to + 1):
-                xpath = f'//*[@id="year_{year}"]'
-                try:
-                    element = WebDriverWait(self.driver, 2).until(
-                        EC.element_to_be_clickable((By.XPATH, xpath)))
-                    self.driver.execute_script("arguments[0].click();", element)
-                    print("Selected year:", year)
-                except Exception:
-                    print(f"Can't load the year selection or no publications for: {year} year!")
-
-
-            #Click "search" button
-            self.driver.find_element(By.XPATH, '//td[6]/div').click() # TODO: remove hardcoded index
+        # rubrics, titles, orgs, authors, years, types, roles, orgroles
+        self.chose_something("rubrics")
+        #Click "search" button
+        self.driver.find_element(By.XPATH, '//td[6]/div').click() # TODO: remove hardcoded index
             
             
         page_number = 1
@@ -138,7 +118,72 @@ class ParserOrg:
             except NoSuchElementException:
                 print("No more pages!")
                 break
-
+    
+    def get_something(self, something : str) -> dict:
+        try:
+            self.driver.find_element(By.ID, f"hdr_{something}").click()
+            time.sleep(6)
+            WebDriverWait(self.driver, timeout=6).until(
+                EC.visibility_of_element_located((By.ID, f"{something}_options"))
+            )
+            something_rows = self.driver.find_elements(
+                By.XPATH,
+                f'//div[@id="{something}_options"]//table[@id="{something}_table"]/tbody/tr')
+            available_something = {}
+            print(f"Available {something} ( [key_number] {something} (number of publications) ):")
+            for key, row in enumerate(something_rows):
+                try:
+                    tds = row.find_elements(By.TAG_NAME, "td")
+                    if len(tds) != 2: continue
+                    
+                    input_element = tds[0].find_element(By.TAG_NAME, "input")
+                    checkbox_id = input_element.get_attribute("id")
+                    
+                    text = tds[1].text.strip()  
+                    m = re.match(r'(.+?)\s*\((\d+)\)\s*$', text)
+                    if m:
+                        available_something[key] = checkbox_id
+                        print(f'[{key}] {m.group(0)}')
+                except Exception as e:
+                    print("Exception: ", e)
+            return available_something
+        except Exception as e:
+            print(f"Failed to open {something} selection: {e}")
+            return {}
+            
+    
+    def chose_something(self, something) -> bool:
+        usr_input = 'n'
+        usr_input = input(f"Need a choice of {something} in the parameters? (y/N) ")
+        if usr_input.lower() == "n" or usr_input.lower == "т": return False
+        available_something = self.get_something(something)
+        
+        usr_input = input(f"\nEnter key numbers (if you don't need this filter, enter -1): ")
+        if usr_input == '-1': return False
+        for key in self.parse_ranges(usr_input):
+            checkbox_id = available_something[key]
+            xpath = f'//*[@id="{checkbox_id}"]'
+            try:
+                element = WebDriverWait(self.driver, 2).until(
+                    EC.element_to_be_clickable((By.XPATH, xpath))
+                )
+                self.driver.execute_script("arguments[0].click();", element)
+                print(f"Selected {something}: [{key}]")
+            except Exception as e:
+                print(f"Can't load the selector or no publications for [{key}]! Exception: {e}")
+        return True
+        
+    @staticmethod
+    def parse_ranges(usr_input : str) -> set:
+        res = set()
+        for part in re.finditer(r'\s*(\d+)(?:\s*-\s*(\d+))?\s*', usr_input):
+            start = int(part.group(1))
+            end = int(part.group(2)) if part.group(2) else start
+            for i in range(start, end+1):
+                res.add(i)
+        return res
+    
+        
     @staticmethod
     def create_table_cells(soup):
         publications_table = soup.find_all('table', id="restab")[0]
