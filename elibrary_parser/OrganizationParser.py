@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
@@ -94,14 +94,11 @@ class ParserOrg:
         
         self.bypass_block_if_present()
         
-        # rubrics, titles, orgs, authors, years, types, roles, orgroles
-        self.chose_something("rubrics")
-        #Click "search" button
-        self.driver.find_element(By.XPATH, '//td[6]/div').click() # TODO: remove hardcoded index
-            
+        self.enable_parameters()
+        
         page_number = 1
         while True:
-            with open(self.files_dir / f"page_{page_number}.html", 'a', encoding='utf-8') as f:
+            with open(self.files_dir / f"page_{page_number}.html", 'w', encoding='utf-8') as f:
                 f.write(self.driver.page_source)
             print(f"Saved page: {page_number}.")
 
@@ -118,7 +115,130 @@ class ParserOrg:
                 print("No more pages!")
                 break
     
-    def get_something(self, something : str) -> dict:
+    def enable_parameters(self):
+        params = ['rubrics', 'titles', 'orgs', 'authors', 'years', 'types', 'roles', 'orgroles']
+        selection_made = [self.chose_span(something=param) for param in params]
+        params = ['orgdepid', 'show_option', 'show_sotr', 'sortorder', 'order']
+        for param in params:
+            selection_made.append(self.chose_select_option(select_id=param))
+        selection_made.append(self.select_checkbox_options())
+        if any(selection_made):
+            try:
+                self.driver.find_element(By.XPATH, "//div[@class='butred' and contains(text(), 'Поиск')]").click()
+                print("\nSuccessfully clicked the 'Поиск' button.")
+                time.sleep(2)
+            except Exception as e:
+                print(f"An unexpected error occurred while clicking the 'Поиск' button: {e}")
+                raise
+        
+        
+    
+    def click_checkbox_by_id(self, checkbox_id: str) -> bool:
+        xpath = f'//*[@id="{checkbox_id}"]'
+        try:
+            element = WebDriverWait(self.driver, 2).until(
+                    EC.element_to_be_clickable((By.XPATH, xpath))
+                )
+            self.driver.execute_script("arguments[0].click();", element)
+            return True
+        except Exception as e:
+            print(f"An error occurred while trying to click checkbox! Exception: {e}")
+            return False
+    
+    def select_checkbox_options(self) -> bool:
+        
+        check_show_refs = input("\n[ ] - учитывать публикации, извлеченные из списков цитируемой литературы? (y/N): ").lower() in {'y', 'yes'}
+        check_hide_doubles = input("\n[✓] - объединять оригинальные и переводные версии статей и переиздания книг? (Y/n): ").lower()  in {'n', 'no'}
+        
+        if not check_hide_doubles and not check_show_refs:
+            return False
+        try:
+            if check_hide_doubles:
+                self.click_checkbox_by_id('check_hide_doubles')
+            if check_show_refs:
+                self.click_checkbox_by_id('check_show_refs')
+            return True
+        except Exception as e:
+            print(f"An error occurred while getting checkbox options: {e}")
+            return False
+    
+    
+    def select_option_by_id(self, select_id: str, value_to_select: str, name_to_select: str) -> bool:
+        """
+        Selects an option in a dropdown (select) by its ID and the option's value.
+        :param select_id: ID of the <select> element (e.g., 'orgdepid', 'show_option')
+        :param value_to_select: The 'value' attribute of the <option> (e.g., '1', '2' etc.)
+        :param name_to_select: The 'name' attribute of th <option> (e.g. 'Университет Иннополис', 'Факультет компьютерных и инженерных наук')
+        :return: True if the option was successfully selected, False otherwise.
+        """
+        try:
+            select_element = WebDriverWait(self.driver,timeout=10).until(
+                EC.element_to_be_clickable((By.ID, select_id))
+            )
+            
+            select_object = Select(select_element)
+            select_object.select_by_value(value_to_select)
+            print(f'Option {name_to_select}')
+            time.sleep(2)
+            return True
+        except Exception as e:
+            print(f'An error occurred while interacting with <select> ID {select_id}: {e}')
+            return False
+
+    
+    # orgdepid, show_option, show_sotr, sortorder, order
+    def get_select_option(self, select_id : str) -> dict:
+        """
+        Parses options from a dropdown (select) and prints them to the console.
+        Returns a dictionary where the key is a sequential number and the value is the dictionary with option's name and value.
+
+        :param select_id: ID of the <select> element (e.g., 'orgdepid', 'show_option')
+        :return: A dictionary of available options.
+        """
+        try:
+            select_element = WebDriverWait(self.driver, 10).until(
+                EC.element_to_be_clickable((By.ID, select_id))
+            )
+            available_options = {}
+            print(f"\nAvailable options for id = {select_id}:")
+            # Find all option elements within this select
+            options = select_element.find_elements(By.TAG_NAME, "option")
+            if not options:
+                print(f'No availble options for {select_id}.')
+                return {}
+            
+            for key, option in enumerate(options):
+                option_value = option.get_attribute("value")
+                option_text = option.text.strip()
+                if option_value:
+                    available_options[key] = {"name": option_text, "value" : option_value}
+                    print(f'[{key}] {option_text} (value: {option_value})')
+            return available_options
+        except Exception as e:
+            print(f'An error occurred while getting options for <select> ID {select_id}: {e}')
+            return {}
+    
+    def chose_select_option(self, select_id : str) -> bool:
+        
+        usr_input = input(f"Do you need to choose an option for {select_id}? (y/N) ")
+        if usr_input.lower() not in {'y', 'yes'}: return False
+        
+        available_options = self.get_select_option(select_id)
+        usr_input = input(f'\nEnter the option nuber for {select_id} (-1 if no selection needed): ')
+        if usr_input == '-1': return False
+        
+        try:
+            chosen_key = int(usr_input)
+            if chosen_key in available_options:
+                value_to_select = available_options[chosen_key]['value']
+                name_to_select = available_options[chosen_key]['name']
+                return self.select_option_by_id(select_id, value_to_select, name_to_select)
+        except Exception as e:
+            print(f"An error occurred during option selection: {e}")
+            return False
+                
+    # hdr_rubrics, hdr_titles, hdr_orgs, hdr_authors, hdr_years, hdr_types, hdr_roles, hdr_orgroles
+    def get_span(self, something : str) -> dict:
         try:
             self.driver.find_element(By.ID, f"hdr_{something}").click()
             time.sleep(6)
@@ -147,29 +267,22 @@ class ParserOrg:
                     print("Exception: ", e)
             return available_something
         except Exception as e:
-            print(f"Failed to open {something} selection: {e}")
+            print(f"\nFailed to open {something} selection: {e}")
             return {}
             
     
-    def chose_something(self, something) -> bool:
-        usr_input = 'n'
-        usr_input = input(f"Need a choice of {something} in the parameters? (y/N) ")
-        if usr_input.lower() == "n" or usr_input.lower == "т": return False
-        available_something = self.get_something(something)
+    def chose_span(self, something) -> bool:
         
-        usr_input = input(f"\nEnter key numbers (if you don't need this filter, enter -1): ")
+        usr_input = input(f"Need a choice of {something} in the parameters? (y/N) ")
+        if usr_input.lower() not in {'y', 'yes'}: return False
+        available_something = self.get_span(something)
+        
+        usr_input = input(f"\nEnter key numbers (-1 if no span needed): ")
         if usr_input == '-1': return False
         for key in self.parse_ranges(usr_input):
             checkbox_id = available_something[key]
-            xpath = f'//*[@id="{checkbox_id}"]'
-            try:
-                element = WebDriverWait(self.driver, 2).until(
-                    EC.element_to_be_clickable((By.XPATH, xpath))
-                )
-                self.driver.execute_script("arguments[0].click();", element)
+            if self.click_checkbox_by_id(checkbox_id):
                 print(f"Selected {something}: [{key}]")
-            except Exception as e:
-                print(f"Can't load the selector or no publications for [{key}]! Exception: {e}")
         return True
         
     @staticmethod
