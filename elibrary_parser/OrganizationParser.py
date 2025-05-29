@@ -54,7 +54,7 @@ class ParserOrg:
         self.driver = None
         self.files_dir = None
         self.publications = []
-
+             
         self.create_files_dir()
         self.setup_webdriver()
 
@@ -98,7 +98,6 @@ class ParserOrg:
         self.chose_something("rubrics")
         #Click "search" button
         self.driver.find_element(By.XPATH, '//td[6]/div').click() # TODO: remove hardcoded index
-            
             
         page_number = 1
         while True:
@@ -247,13 +246,12 @@ class ParserOrg:
         
         tds = cell.find_parent("tr").find_all("td")
         return tds[2].get_text(strip=True)
-        
 
     def parse_publications(self):
         """ Get trough the html file and save information from it"""
-        
+        html_files = sorted(self.files_dir.glob("page_*.html"), key=lambda f: int(f.stem.split('_')[1]))
         print("Parsing publications for organization", self.org_id)
-        for file in self.files_dir.glob("*.html"):
+        for file in html_files:
             print(f"Reading {file.name}...")
             with open(file, 'r', encoding='utf-8') as f:
                 soup = BeautifulSoup(f.read(), 'html.parser')
