@@ -3,3 +3,5 @@ selenium==3.141.0
 soupsieve==2.2
 urllib3==1.26.3
 transliterate==1.10.2
+scikit-learn
+pandas
