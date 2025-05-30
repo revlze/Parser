@@ -10,4 +10,5 @@
 - [x] Make OrganizationParser @revlze
 - [x] Make surname_compare @GreatDruk
 - [x] Add to the organization parser the ability to select the parameters for searching for publications in an organization @revlze
+- [x] Decomposed organizationParser.py into modular components and add logging @revlze
 
