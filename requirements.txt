@@ -1,7 +1,8 @@
-beautifulsoup4==4.9.3
-selenium==3.141.0
-soupsieve==2.2
-urllib3>=1.26.19
-transliterate==1.10.2
+beautifulsoup4
+selenium
+soupsieve
+urllib3
+transliterate
 scikit-learn
 pandas
+logging
