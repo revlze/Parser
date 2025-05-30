@@ -3,7 +3,7 @@ import logging
 from elibrary_parser.downloader import Downloader
 from elibrary_parser.html_parser import ElibraryHTMLParser
 from elibrary_parser.serializer import PublicationSerializer
-from elibrary_parser import logging_config # Просто чтобы убедиться, что логирование настроено
+from elibrary_parser import logging_config 
 
 logger = logging.getLogger(__name__)
 
