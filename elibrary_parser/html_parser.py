@@ -15,10 +15,11 @@ class ElibraryHTMLParser:
         self.org_id = org_id
         self.data_path = Path(data_path)
         self.files_dir = self.data_path / 'raw' / self.org_id
-    
+        
     def parse_publications(self):
         """ Get trough the html file and save information from it"""
         publications = []
+        unique_pubs = set()
         html_files = sorted(self.files_dir.glob("page_*.html"), key=lambda f: int(f.stem.split('_')[1]))
         self.logger.info(f"Parsing publications for organization '{self.org_id}'")
         for file in html_files:
@@ -36,7 +37,9 @@ class ElibraryHTMLParser:
                     cited_by=self.get_cited_by(cell),
                 )
                 pub.get_year()
-                publications.append(pub)
+                if pub.authors != '-' and pub not in unique_pubs:
+                    publications.append(pub)
+                    unique_pubs.add(pub)
         return publications
 
     @staticmethod
