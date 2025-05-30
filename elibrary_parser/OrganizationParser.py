@@ -272,7 +272,6 @@ class ParserOrg:
             
     
     def chose_span(self, something) -> bool:
-        
         usr_input = input(f"Need a choice of {something} in the parameters? (y/N) ")
         if usr_input.lower() not in {'y', 'yes'}: return False
         available_something = self.get_span(something)
