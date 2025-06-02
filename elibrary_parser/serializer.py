@@ -24,7 +24,7 @@ class PublicationSerializer:
         
         with open(csv_path, 'w', encoding='utf-8', newline='') as csvfile:
             writer = csv.writer(csvfile, delimiter=',')
-            writer.writerow(["Authors", "Title", "Year", "Source title", "Cited by", "Link"])
+            writer.writerow(["Authors", "Title", "Year", "Source title", "Cited by", "Link", "Source ID"])
             for pub in publications:
                 writer.writerow([
                     pub.authors,
@@ -32,7 +32,8 @@ class PublicationSerializer:
                     pub.year,
                     pub.info,
                     pub.cited_by,
-                    pub.link
+                    pub.link,
+                    pub.source_id
                 ])
             self.logger.info(f"Publications for organization {self.org_id} saved to: {csv_path}")
             

@@ -36,7 +36,7 @@ class Downloader:
             
     def setup(self):
         options = Options()
-        options.headless = True
+        options.headless = self.headless
         options.set_preference("general.useragent.override", random.choice(self.USER_AGENTS))
         service = Service(executable_path=self.driver_path)
         self.driver = webdriver.Firefox(service=service,options=options)

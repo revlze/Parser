@@ -17,13 +17,14 @@ class Publication:
         link for the publication
     """
 
-    def __init__(self, title: str, authors: str, info: str, link: str, cited_by: str):
+    def __init__(self, title: str, authors: str, info: str, link: str, cited_by: str, source_id: str):
         self.title = title
         self.authors = authors
         self.info = info
         self.link = link
         self.year = None
         self.cited_by = cited_by
+        self.source_id = source_id
         
     missing_value = '-'
 

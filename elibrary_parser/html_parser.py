@@ -24,8 +24,8 @@ class ElibraryHTMLParser:
         self.logger.info(f"Parsing publications for organization '{self.org_id}'")
         for file in html_files:
             self.logger.info(f"Reading {file.name}...")
-            with open(file, 'r', encoding='utf-8') as file:
-                soup = BeautifulSoup(file.read(), 'html.parser')
+            with open(file, 'r', encoding='utf-8') as f:
+                soup = BeautifulSoup(f.read(), 'html.parser')
 
             for cell in self.create_table_cells(soup):
                 info = self.get_info(cell)
@@ -35,6 +35,7 @@ class ElibraryHTMLParser:
                     info=info,
                     link=self.get_link(cell),
                     cited_by=self.get_cited_by(cell),
+                    source_id=self.get_source_id(cell)
                 )
                 pub.get_year()
                 if pub.authors != '-' and pub not in unique_pubs:
@@ -103,3 +104,14 @@ class ElibraryHTMLParser:
 
         tds = cell.find_parent("tr").find_all("td")
         return tds[2].get_text(strip=True)
+    
+    @staticmethod
+    def get_source_id(cell: bs4.element.ResultSet) -> str:
+        try:
+            fonts = cell.find_all("font", color="#00008f")
+            link_tag = fonts[1].find('a')
+            href = link_tag.get('href') 
+            match = re.search(r'id=(\d+)', href or '')
+            return match.group(1)
+        except Exception:
+            return Publication.missing_value
