@@ -3,3 +3,8 @@ selenium==3.141.0
 soupsieve==2.2
 urllib3==1.26.3
 transliterate==1.10.2
+dash==3.0.4
+plotly==5.22.0
+pandas==2.2.3
+numpy==1.26.4
+networkx==3.2.1
