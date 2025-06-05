@@ -294,17 +294,13 @@ class Downloader:
     
     def bypass_block_if_present(self):
         try:
-            checkbox = WebDriverWait(self.driver, 2).until(
-                EC.element_to_be_clickable((By.XPATH, "/html/body/div[2]/div[3]/div[1]/div/div/span/div[1]"))
+            WebDriverWait(self.driver, 2).until(
+                EC.presence_of_element_located((By.XPATH, "//iframe[contains(@src, 'recaptcha')]"))
             )
-            checkbox.click()
-    
-            continue_button = WebDriverWait(self.driver, 2).until(
-                EC.element_to_be_clickable((By.XPATH, "/html/body/div[1]/form/input[2]"))
-            )
-            continue_button.click()
-
-            self.logger.info("Blocking successfully passed!,")
+            print()
+            self.logger.warning("Pass the captcha and press enter")
+            input()
+            self.logger.info("Blocking successfully passed!")
         except Exception:
             self.logger.info("Blocking is not detected or could not be bypassed - continue!")
     
