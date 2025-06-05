@@ -5,7 +5,8 @@ bin/
 lib64
 org_data/
 pyvenv.cfg
-
+data\ test/
+data/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

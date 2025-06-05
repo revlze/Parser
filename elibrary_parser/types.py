@@ -1,5 +1,5 @@
 import re
-
+import time
 
 class Publication:
     """ Storing information about publications
@@ -17,13 +17,14 @@ class Publication:
         link for the publication
     """
 
-    def __init__(self, title: str, authors: str, info: str, link: str, cited_by: str):
+    def __init__(self, title: str, authors: str, info: str, link: str, cited_by: str, source_id: str):
         self.title = title
         self.authors = authors
         self.info = info
         self.link = link
         self.year = None
         self.cited_by = cited_by
+        self.source_id = source_id
         
     missing_value = '-'
 
@@ -34,12 +35,31 @@ class Publication:
     
     def get_year(self):
         """ Gets a year in the range from 1900 to 2100 """
+        
+        current_year = time.localtime().tm_year
+        
+        full_date = re.search(r'\b\d{1,2}\.\d{1,2}\.(\d{4})\b', self.info)
+        if full_date:
+            year = int(full_date.group(1))
+            if 1500 <= year <= current_year:
+                self.year = str(year)
+                return
+        
+        for match in re.finditer(r'\b(\d{4})\b', self.info):
+            year_str = match.group(1)
+            year = int(year_str)
+            if not (1500 <= year <= current_year):
+                continue
 
-        years = re.findall(r'20\d{2}|19\d{2}', self.info)
-        if years:
-            self.year = years[0]
-        else:
-            self.year = Publication.missing_value
+            idx = match.start()
+            context = self.info[max(0, idx - 5):idx]
+
+            if re.search(r'(№|-\d*|С\. ?|\d\.)$', context):
+                continue
+
+            self.year = year_str
+            return
+        self.year = Publication.missing_value
 
     def __eq__(self, other) -> bool:
         """ Gets out any similar authors publications if their

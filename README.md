@@ -1,59 +1,19 @@
 # Парсер научных журналов eLibrary
 
-### Изменения
-
-* Добавил парсер для организаций
-----------------
-
 Краткое описание
 ----------------
 
 Данная программа собирает список публикаций автора по его идентификатору eLibrary и информацию о статьях. В текущей версии сохраняется следующая информация:
-* Заголовок публикации (title), 
 * Список авторов (authors), 
-* Библиографическая информация (info), 
+* Заголовок публикации (title), 
+* Год публикации (year),
+* Библиографическая информация (source title), 
+* Количество цитирований(cited by),
 * Ссылка на страницу публикации (link),
-* Год публикации (year).
+* Ссылка на источник (source id).
 
 HTML-страницы с публикациями автора/организаций загружаются в папку `<data_path>/raw/<organization_id>`. Информация о публикациях сохраняется в файл формата CSV в папку `<data_path>/processed/<organization_id>/publications.csv`. 
 
-Также программа может находить общие публикации коллектива авторов.
-
-Пример работы:
-
-```python
-from elibrary_parser.Parsers import AuthorParser
-from elibrary_parser.utils import find_common_publications
-
-
-author_ids = ["1","2","3"]
-publications = []
-
-for author_id in author_ids:
-    parser = AuthorParser(
-        author_id=author_id,
-        data_path="C://Parser/data/",
-        date_from=1984, 
-        date_to=2021 
-    )
-
-    parser.find_publications()  # Загрузка HTML-файлов с публикациями
-    parser.parse_publications()  # Извлечение информации из HTML-файлов
-    parser.save_publications()  # Сохранение информации в CSV-файл
-
-    publications.append(set(parser.publications))
-
-# Поиск общих публикаций коллектива авторов
-common_publications = find_common_publications(publications)
-print("Found", len(common_publications), "common publications")
-
-# Вывод названия и авторов общих публикаций
-for publication in common_publications:
-    print(publication.title)
-    print(publication.authors)
-    print("-" * 20)
-
-```
 
 Установка
 ---------
