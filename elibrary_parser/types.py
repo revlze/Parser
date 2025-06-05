@@ -1,5 +1,5 @@
 import re
-
+import time
 
 class Publication:
     """ Storing information about publications
@@ -36,13 +36,28 @@ class Publication:
     def get_year(self):
         """ Gets a year in the range from 1900 to 2100 """
         
-        full_date_match = re.search(r'\b\d{1,2}\.\d{1,2}\.(19\d{2}|20\d{2}|2100)\b', self.info)
-        if full_date_match:
-            self.year = full_date_match.group(1)
-            return
-        year_match = re.findall(r'\b(?:19\d{2}|20\d{2})\b', self.info)
-        if year_match:
-            self.year = year_match[0]
+        current_year = time.localtime().tm_year
+        
+        full_date = re.search(r'\b\d{1,2}\.\d{1,2}\.(\d{4})\b', self.info)
+        if full_date:
+            year = int(full_date.group(1))
+            if 1500 <= year <= current_year:
+                self.year = str(year)
+                return
+        
+        for match in re.finditer(r'\b(\d{4})\b', self.info):
+            year_str = match.group(1)
+            year = int(year_str)
+            if not (1500 <= year <= current_year):
+                continue
+
+            idx = match.start()
+            context = self.info[max(0, idx - 5):idx]
+
+            if re.search(r'(№|-\d*|С\. ?|\d\.)$', context):
+                continue
+
+            self.year = year_str
             return
         self.year = Publication.missing_value
 
