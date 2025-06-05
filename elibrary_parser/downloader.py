@@ -63,19 +63,19 @@ class Downloader:
     
     def _save_current_page(self, page_number : int, source: str):
         file_path = self.files_dir / f"page_{page_number}.html"
+        self.bypass_block_if_present()
         with open(file_path, 'w', encoding='utf-8') as file:
             file.write(source)
         self.logger.info(f"Saved page: {page_number} to {file_path}.")
     
     def _go_to_next_page(self) -> bool:
         try:
-            self.bypass_block_if_present()
             self.driver.find_element(By.LINK_TEXT, 'Следующая страница').click()
-            sleep_seconds = random.randint(2, 5)
+            # sleep_seconds = random.randint(2, 5)
             WebDriverWait(self.driver, 20).until(
                     EC.invisibility_of_element_located((By.ID, 'loading')))
-            self.logger.info(f"Sleeping for {sleep_seconds} seconds before next page.")
-            time.sleep(sleep_seconds)
+            # self.logger.info(f"Sleeping for {sleep_seconds} seconds before next page.")
+            # time.sleep(sleep_seconds)
             return True
         except NoSuchElementException:
             self.logger.warning("No more pages found!")
