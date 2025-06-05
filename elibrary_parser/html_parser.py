@@ -112,6 +112,6 @@ class ElibraryHTMLParser:
             link_tag = fonts[1].find('a')
             href = link_tag.get('href') 
             match = re.search(r'id=(\d+)', href or '')
-            return match.group(1)
+            return 'https://www.elibrary.ru/contents.asp?id=' + match.group(1)
         except Exception:
             return Publication.missing_value
