@@ -35,12 +35,16 @@ class Publication:
     
     def get_year(self):
         """ Gets a year in the range from 1900 to 2100 """
-
-        years = re.findall(r'20\d{2}|19\d{2}', self.info)
-        if years:
-            self.year = years[0]
-        else:
-            self.year = Publication.missing_value
+        
+        full_date_match = re.search(r'\b\d{1,2}\.\d{1,2}\.(19\d{2}|20\d{2}|2100)\b', self.info)
+        if full_date_match:
+            self.year = full_date_match.group(1)
+            return
+        year_match = re.findall(r'\b(?:19\d{2}|20\d{2})\b', self.info)
+        if year_match:
+            self.year = year_match[0]
+            return
+        self.year = Publication.missing_value
 
     def __eq__(self, other) -> bool:
         """ Gets out any similar authors publications if their
