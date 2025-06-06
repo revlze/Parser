@@ -54,7 +54,7 @@ class Publication:
             idx = match.start()
             context = self.info[max(0, idx - 5):idx]
 
-            if re.search(r'(№|-\d*|С\. ?|\d\.)$', context):
+            if re.search(r'(№|-\d*|\bС\. ?|\d\.)$', context):
                 continue
 
             self.year = year_str
