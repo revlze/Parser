@@ -9,20 +9,20 @@ from datetime import datetime
 
 
 # DATA LOADING
-thesaurus = pd.read_csv('parser/org_data/processed/14346/thesaurus_authors.txt', sep='\t').set_index('Label')
+ORG_ID = input('ID of the educational institution:')
 replace_dict = (
-    pd.read_csv('parser/org_data/processed/14346/thesaurus_authors.txt', sep='\t')
+    pd.read_csv(f'org_data/processed/{ORG_ID}/thesaurus_authors.txt', sep='\t')
     .set_index('Label')
     .to_dict()['Replace by']
 )
-publication = pd.read_csv('parser/org_data/processed/14346/publications.csv')
-nodes = pd.read_csv('parser/org_data/processed/14346/Innopolis University map.txt', sep='\t')
-edges = pd.read_csv('parser/org_data/processed/14346/Innopolis University network.txt', sep='\t', names=['first_author','second_author','weight'], header=None)
+publication = pd.read_csv(f'org_data/processed/{ORG_ID}/publications.csv')
+nodes = pd.read_csv(f'org_data/processed/{ORG_ID}/map.txt', sep='\t')
+edges = pd.read_csv(f'org_data/processed/{ORG_ID}/network.txt', sep='\t', names=['first_author','second_author','weight'], header=None)
 
 
 # DATA PROCESSING FUNCTIONS
 def standardize_author_names(names, replace_dict):
-    arr_authors = [name.strip() for name in names.split(';')]
+    arr_authors = [name.replace('et al.', '').strip() for name in names.split(';')]
     res = []
     for name in arr_authors:
         res.append(replace_dict.get(name, name).lower())
